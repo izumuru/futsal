@@ -2,6 +2,7 @@ const {User, Auth} = require("../models");
 const bcrypt = require("bcrypt");
 const { signToken } = require("../helpers/jwt");
 const {transporter, mailOptions} = require("../helpers/mail");
+const storage = require("../helpers/file_upload");
 
 async function login(request, response) {
     try {
@@ -17,7 +18,7 @@ async function login(request, response) {
             message: "Email atau Password salah"
         })
 
-        const token  = signToken({email: user.email})
+        const token  = signToken({email: user.email, user_id: user.user_id})
         await Auth.create({user_id: user.user_id, token: token})
 
         response.status(200).json({
@@ -64,4 +65,33 @@ async function register(request, response) {
         })
     }
 }
-module.exports = { login, register }
+
+async function addOperator(request, response) {
+    try {
+        const { name, email, no_hp, password, address } = request.body
+        const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+        const { thumbnail, ktp } = request.files
+        const user = await User.create({
+            name,
+            email,
+            no_hp,
+            password: hashedPassword,
+            type: 'operator',
+            isaktif: true,
+            address,
+            thumbnail: thumbnail[0].filename,
+            ktp: ktp[0].filename
+        }, {returning: true})
+        response.status(201).json({
+            status: 201,
+            message: 'Berhasil tambah operator'
+        })
+    } catch (e) {
+        console.log(e)
+        response.status(500).json({
+            status: 500,
+            message: 'Internal Server Error'
+        })
+    }
+}
+module.exports = { login, register, addOperator }

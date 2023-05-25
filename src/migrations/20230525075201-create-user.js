@@ -40,7 +40,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       fcm_token: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       no_hp: {

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const fs = require('fs');
 
 const signToken = (object) => {
-    return jwt.sign(object, process.env.APP_KEY);
+    return jwt.sign(object, process.env.APP_KEY, {expiresIn: '1d'});
 };
 
 const verifyToken = (access_token) => {

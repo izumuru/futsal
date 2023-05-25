@@ -5,7 +5,7 @@ const Joi = require("joi");
 const bcrypt = require('bcrypt')
 
 //local
-const {login, register} = require("../services/user.service");
+const {login, register, verification} = require("../services/user.service");
 
 
 const router = express.Router()
@@ -25,9 +25,15 @@ const registerValidationSchema  = Joi.object({
     fcm_token: Joi.string().required()
 })
 
+const queryVerification = Joi.object({
+    token: Joi.string().min(3).required()
+})
+
 //router
 router.post('/login', validator.body(loginValidationSchema), login)
 
 router.post('/register', validator.body(registerValidationSchema), register)
+
+router.get('/verification', validator.query(queryVerification), verification)
 
 module.exports = router

@@ -1,10 +1,11 @@
+require('dotenv').config()
 module.exports = {
     development: {
-        username: 'postgres',
-        password: 'asdfasdf',
-        database: 'futsal',
-        host: '127.0.0.1',
-        port: 5432,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOSTNAME,
+        port: process.env.DB_PORT,
         dialect: 'postgres',
     },
     test: {
@@ -19,11 +20,11 @@ module.exports = {
         }
     },
     production: {
-        username: process.env.PROD_DB_USERNAME,
-        password: process.env.PROD_DB_PASSWORD,
-        database: process.env.PROD_DB_NAME,
-        host: process.env.PROD_DB_HOSTNAME,
-        port: process.env.PROD_DB_PORT,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOSTNAME,
+        port: process.env.DB_PORT,
         dialect: 'postgres',
     }
 };

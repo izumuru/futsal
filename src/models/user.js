@@ -14,17 +14,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    user_id: DataTypes.INTEGER,
+    user_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    type: DataTypes.ENUM,
+    type: DataTypes.ENUM('admin', 'operator', 'customer'),
     thumbnail: DataTypes.TEXT,
     username: DataTypes.STRING,
     fcm_token: DataTypes.STRING,
     no_hp: DataTypes.STRING,
     alamat: DataTypes.TEXT,
-    gender: DataTypes.ENUM,
+    gender: DataTypes.ENUM('LK','PR'),
     isaktif: DataTypes.BOOLEAN,
     ktp: DataTypes.TEXT
   }, {

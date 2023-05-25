@@ -18,7 +18,7 @@ async function login(request, response) {
         })
 
         const token  = signToken({email: user.email})
-        await Auth.create({user_id: email.user_id, token: token})
+        await Auth.create({user_id: user.user_id, token: token})
 
         response.status(200).json({
             status: 200,
@@ -27,6 +27,7 @@ async function login(request, response) {
             }
         })
     } catch (e) {
+        console.log(e)
         response.status(500).json({
             status: 500,
             message: 'Internal server error'
@@ -49,8 +50,14 @@ async function register(request, response) {
         transporter.sendMail(mailOptions(user.email, 'Verification', 'verification', {
             name: user.name,
             url: process.env.APP_URL + "/auth/verification?token=" + Buffer.from(user.email).toString('base64')
-        }))
+        }), function (error, info) {
+            if(error) {
+                return console.log(error)
+            }
+            console.log('Message sent: ' + info.response)
+        })
     } catch (e) {
+        console.log(e)
         response.status(500).json({
             status: 500,
             message: 'Internal Server Error'

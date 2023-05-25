@@ -15,7 +15,8 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       password: {
         type: Sequelize.STRING,
@@ -24,7 +25,7 @@ module.exports = {
       type: {
         allowNull: false,
         type: Sequelize.ENUM,
-        value: [
+        values: [
             'admin',
             'operator',
             'customer'
@@ -35,8 +36,8 @@ module.exports = {
         type: Sequelize.TEXT
       },
       username: {
-        allowNull: false,
-        type: Sequelize.STRING
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       fcm_token: {
         allowNull: false,
@@ -53,7 +54,7 @@ module.exports = {
       gender: {
         allowNull: true,
         type: Sequelize.ENUM,
-        value: [
+        values: [
             'LK',
             'PR'
         ]

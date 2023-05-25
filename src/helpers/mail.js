@@ -1,3 +1,4 @@
+require('dotenv').config()
 const hbs = require('nodemailer-express-handlebars')
 const nodemailer = require('nodemailer')
 const path = require('path')
@@ -19,10 +20,10 @@ const transporter = nodemailer.createTransport(
 // point to the template folder
 const handlebarOptions = {
     viewEngine: {
-        partialsDir: path.resolve('../views/'),
+        partialsDir: path.resolve('./src/'),
         defaultLayout: false,
     },
-    viewPath: path.resolve('../views/'),
+    viewPath: path.resolve('./src/views/mail/'),
 };
 
 // use a template file with nodemailer

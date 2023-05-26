@@ -10,6 +10,7 @@ const {login, register, verification} = require("../services/user.service");
 const loginValidationSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    fcm_token: Joi.string()
 })
 
 const registerValidationSchema = Joi.object({

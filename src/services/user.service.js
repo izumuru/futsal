@@ -36,9 +36,10 @@ async function login(request, response) {
 
         response.status(200).json({
             status: 200,
-            data: {
-                access_token: token
-            }
+            data: user.type === "customer" ? {
+                access_token: token,
+                fcm_token: user.fcm_token
+            } : {access_token: token}
         })
     } catch (e) {
         console.log(e)

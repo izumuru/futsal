@@ -24,10 +24,14 @@ const bodyUpdateOperator = Joi.object({
     gender: Joi.string().valid('LK','PR').required()
 })
 
+const queryOperators = Joi.object({
+    type: Joi.string().valid('active', 'not-active').required()
+})
+
 const uploadFile = storage.fields([{name: 'thumbnail', maxCount: 1}, {name: 'ktp', maxCount: 1}])
 
 router.use(adminAuthorization)
-router.get('/operators', getOperator)
+router.get('/operators',validator.query(queryOperators), getOperator)
 router.post('/operators', (req, res, next) => {
     multerWithErrorHandling(uploadFile, req, res, next)
 }, validator.body(bodyAddOperator), addOperator)

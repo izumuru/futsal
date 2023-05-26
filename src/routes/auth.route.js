@@ -13,7 +13,8 @@ const router = express.Router()
 //validation
 const loginValidationSchema = Joi.object({
     email: Joi.string().email().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    fcm_token: Joi.string().required()
 })
 
 const registerValidationSchema  = Joi.object({

@@ -6,7 +6,7 @@ const storage = require("../helpers/file_upload");
 
 async function login(request, response) {
     try {
-        const {email, password} = request.body
+        const {email, password, fcm_token} = request.body
         const user = await User.findOne({where: {email: email}})
         if (!user) return response.status(400).json({
             status: 400,
@@ -22,6 +22,8 @@ async function login(request, response) {
             status: 400,
             message: 'User belum melakukan verifikasi'
         })
+
+        if(user.type === 'customer') await user.update({fcm_token: fcm_token})
 
         const token = signToken({email: user.email, user_id: user.user_id})
         await Auth.create({user_id: user.user_id, token: token})

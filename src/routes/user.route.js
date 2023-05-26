@@ -16,6 +16,7 @@ const bodyAddOperator = Joi.object({
     email: Joi.string().email().required(),
     no_hp: Joi.string().pattern(new RegExp(/^\d+$/)).min(10).max(13),
     password: Joi.string().required().min(6),
+    address: Joi.string().required()
 })
 
 router.post('/add-operator', authentication, storage.fields([{name: 'thumbnail', maxCount: 1}, {name: 'ktp', maxCount: 1}]), validator.body(bodyAddOperator), addOperator)

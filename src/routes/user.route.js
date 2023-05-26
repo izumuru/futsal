@@ -2,7 +2,7 @@
 const express = require('express')
 const validator = require('express-joi-validation').createValidator({})
 const Joi = require("joi");
-const authentication = require('../middleware/authentication')
+const adminAuthorization = require('../middleware/admin.authorization')
 
 //local
 const { addOperator } = require("../services/user.service");
@@ -19,6 +19,7 @@ const bodyAddOperator = Joi.object({
     address: Joi.string().required()
 })
 
-router.post('/add-operator', authentication, storage.fields([{name: 'thumbnail', maxCount: 1}, {name: 'ktp', maxCount: 1}]), validator.body(bodyAddOperator), addOperator)
+router.use(adminAuthorization)
+router.post('/add-operator', storage.fields([{name: 'thumbnail', maxCount: 1}, {name: 'ktp', maxCount: 1}]), validator.body(bodyAddOperator), addOperator)
 
 module.exports = router

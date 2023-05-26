@@ -19,6 +19,8 @@ app.use(express.static('public'))
 
 //router
 app.use('/auth', authRouter)
+
+app.use(authentication)
 app.use('/user', userRouter)
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.isJoi) {

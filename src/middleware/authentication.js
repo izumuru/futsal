@@ -14,7 +14,7 @@ const authentication = async (req, res, next) => {
             const result = verifyToken(token);
             const user = await User.findByPk(result.user_id);
             if (user.email === result.email) {
-                res.locals.user = result
+                res.locals.user = user
                 return next()
             }
             res.status(400).json({

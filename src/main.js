@@ -25,8 +25,8 @@ app.use('/user', userRouter)
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.isJoi) {
         res.status(400).json({
-            type: err.type,
-            message: err.error.string()
+            status: 400,
+            errors: err.error.details.map(value => value.message)
         })
     } else {
         next(err)

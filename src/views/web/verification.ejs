@@ -12,32 +12,38 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         #description {
             background-color: #262626;
             text-align: left;
             color: white;
-            width: 45%;
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
             font-size: 20px;
         }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
     </style>
     <title>Verifikation Success</title>
 </head>
-<body style="display: flex; justify-content: center; background-color: rgba(38, 38, 38, 0.4);">
-    <div style="width: 90%;">
-        <div style="text-align: center;">
-            <span style="font-size: 80px; font-weight: bold; color: white;">FUTSAL GEMBIRA</span><br>
-            <img src="<%= url %>/logoverif.png" style="margin-top: 10px" alt="verif" width="295" height="295">
-            <div id="description">
-                Halo <%= name %><br>
-                Akun anda dengan email <span style="color: yellow"><%= email %></span> berhasil divalidasi
-                <br><br>
-                Silahkan login kembali pada aplikasi <span style="color: green">Futsal Gembira</span>
-            </div>
+<body style="background-image: url('<%= url %>/bg.png'); background-size: cover;align-items: center">
+<div style="display: flex; justify-content: center;">
+    <div style="text-align: center; position: absolute; top: 50%; transform: translateY(-50%);">
+        <span style="font-size: 80px; font-weight: bold; color: white;">FUTSAL GEMBIRA</span><br>
+        <img src="<%= url %>/logoverif.png" style="margin-top: 10px" alt="verif" width="295" height="295">
+        <div id="description">
+            Halo <%= name %><br>
+            Akun anda dengan email <span style="color: yellow"><%= email %></span> berhasil divalidasi
+            <br><br>
+            Silahkan login kembali pada aplikasi <span style="color: green">Futsal Gembira</span>
         </div>
     </div>
+</div>
 </body>
 </html>

@@ -5,7 +5,7 @@
   "main": "./src/main.js",
   "scripts": {
     "start-dev": "nodemon app",
-    "start:migration:up": "npx sequelize db:migrate && node ./src/main.js",
+    "start:migration:up": "npx sequelize db:migrate:undo:all --to 20230526135926-create-fields && npx sequelize db:migrate && node ./src/main.js",
     "migrate:up": "npx sequelize db:migrate"
   },
   "keywords": [],

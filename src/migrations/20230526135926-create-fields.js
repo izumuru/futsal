@@ -10,6 +10,7 @@ module.exports = {
         primaryKey: true,
       },
       name: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       description: {
@@ -17,9 +18,11 @@ module.exports = {
         type: Sequelize.TEXT
       },
       booking_open: {
+        allowNull: false,
         type: Sequelize.TIME
       },
       booking_close: {
+        allowNull: false,
         type: Sequelize.TIME
       },
       waktu_mulai_malam: {
@@ -27,6 +30,7 @@ module.exports = {
         type: Sequelize.TIME
       },
       harga: {
+        allowNull: false,
         type: Sequelize.DOUBLE
       },
       harga_malam: {

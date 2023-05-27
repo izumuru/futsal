@@ -10,11 +10,17 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Fields, {
+        foreignKey: 'field_id'
+      })
     }
   }
   Gallery.init({
-    gallery_id: DataTypes.INTEGER,
+    gallery_id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     field_id: DataTypes.INTEGER,
     image: DataTypes.STRING
   }, {

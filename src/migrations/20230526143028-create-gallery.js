@@ -3,19 +3,24 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Galleries', {
-      id: {
+      gallery_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      gallery_id: {
-        type: Sequelize.INTEGER
-      },
       field_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        reference: {
+          model: {
+            tableName: 'Fields',
+            schema: 'public',
+          },
+          key: 'field_id'
+        }
       },
       image: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       createdAt: {

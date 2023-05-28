@@ -6,6 +6,7 @@ const path = require('path')
 const authRouter = require('./routes/auth.route');
 const userRouter = require('./routes/user.route')
 const fieldRouter = require('./routes/field.route')
+const bookingRouter = require('./routes/booking.route')
 const authentication = require('./middleware/authentication')
 
 const app = express();
@@ -23,7 +24,9 @@ app.use('/auth', authRouter)
 
 app.use(authentication)
 app.use('/user', userRouter)
+app.use('/bookings', bookingRouter)
 app.use('/fields', fieldRouter)
+
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.isJoi) {
         res.status(400).json({

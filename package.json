@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/main.js",
   "scripts": {
-    "start-dev": "npm run migrate:up && npm run seed:all && nodemon app",
+    "start-dev": "nodemon app",
     "start:migration:up": "npx sequelize db:migrate && npm run seed:all && node ./src/main.js",
     "migrate:up": "npx sequelize db:migrate",
     "seed:all": "npx sequelize db:seed:all"

@@ -1,6 +1,7 @@
-const {router, validator} = require('./index')
+const express = require('express')
+const {validator} = require('./index')
 const Joi = require("joi");
-
+const router = express.Router()
 const opadmin = require('../middleware/opadmin.authorization')
 const {createWebBooking} = require('../services/booking.service')
 
@@ -13,3 +14,5 @@ const bodyCreateBooking = Joi.object({
 
 router.use(opadmin)
 router.post('/', validator.body(bodyCreateBooking), createWebBooking)
+
+module.exports = router

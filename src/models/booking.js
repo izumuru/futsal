@@ -29,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
     booking_code: DataTypes.STRING,
     day_price: DataTypes.DOUBLE,
     night_price: DataTypes.DOUBLE,
-    admin_price: DataTypes.DOUBLE,
     day_price_quantity: DataTypes.INTEGER,
     night_price_quantity: DataTypes.INTEGER,
     virtual_account_code: DataTypes.STRING,

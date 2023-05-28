@@ -1,7 +1,9 @@
 //node modules
-const {router, validator} = require('./index')
-const Joi = require("joi");
+const {validator} = require('./index')
+const express = require('express')
 
+const Joi = require("joi");
+const router = express.Router()
 //local
 const {login, register, verification, sendForgotPasswordOtp, forgotPassword} = require("../services/user.service");
 

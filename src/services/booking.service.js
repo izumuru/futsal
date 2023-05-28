@@ -1,7 +1,8 @@
-const {Fields, Booking, PaymentMethod, Sequelize} = require('../models')
+const {Fields, Booking, PaymentMethod} = require('../models')
+const {sequelize} = require('../models/index')
 const { uid } = require('uid')
 async function createWebBooking(request, response) {
-    const t = Sequelize.transaction()
+    const t = await sequelize.transaction()
     try {
         const {
             field_id: fieldId,
@@ -22,13 +23,14 @@ async function createWebBooking(request, response) {
         }
         const bookingExist = await Booking.findOne({where:{booking_time: bookingTime, booking_date: bookingDate}})
         if(bookingExist) return response.status(400).json()
-        const paymentMethod = await PaymentMethod.findOne({where: {platform_payment_metod: "web"}})
+        const paymentMethod = await PaymentMethod.findOne({where: {platform_payment_method: "web"}})
         const booking = await Booking.create({
             payment_method_id: paymentMethod.payment_method_id,
             field_id: field.field_id,
+            user_id: response.locals.user.user_id,
             booking_date: bookingDate,
             booking_time: bookingTime,
-            totalPrice: (duration * price),
+            total_price: (duration * price),
             status_bayar: "paid",
             booking_code: uid(12),
             day_price: typePrice === "day" ? field.harga : null,

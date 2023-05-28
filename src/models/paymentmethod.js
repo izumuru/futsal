@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    payment_type_id: DataTypes.INTEGER,
+    payment_types_id: DataTypes.INTEGER,
     logo: DataTypes.STRING,
     payment_method_name: DataTypes.STRING,
     platform_payment_method: DataTypes.ENUM('web','mobile'),

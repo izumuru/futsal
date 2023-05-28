@@ -1,5 +1,8 @@
 //node modules
-const { router, validator } = require('./index')
+const express = require('express')
+
+const {validator } = require('./index')
+const router = express.Router()
 const Joi = require("joi");
 const adminAuthorization = require('../middleware/admin.authorization')
 

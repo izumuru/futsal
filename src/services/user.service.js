@@ -1,8 +1,7 @@
-const {User, Auth} = require("../models");
+const {User, Auth, ForgotPassword} = require("../models");
 const bcrypt = require("bcrypt");
 const {signToken} = require("../helpers/jwt");
 const {transporter, mailOptions} = require("../helpers/mail");
-const storage = require("../helpers/file_upload");
 
 async function login(request, response) {
     try {
@@ -19,13 +18,13 @@ async function login(request, response) {
             message: "Email atau Password salah"
         })
 
-        if(user.isaktif === false) return response.status(400).json({
+        if (user.isaktif === false) return response.status(400).json({
             status: 400,
             message: 'User belum melakukan verifikasi'
         })
 
-        if(user.type === 'customer' && fcm_token) await user.update({fcm_token: fcm_token})
-        else if(user.type === 'customer' && !fcm_token) return response.status(400).json({
+        if (user.type === 'customer' && fcm_token) await user.update({fcm_token: fcm_token})
+        else if (user.type === 'customer' && !fcm_token) return response.status(400).json({
             status: 400,
             errors: [
                 '"fcm_token" required'
@@ -85,6 +84,7 @@ async function register(request, response) {
         })
     }
 }
+
 async function verification(request, response) {
     try {
         const {token} = request.query
@@ -112,4 +112,48 @@ async function verification(request, response) {
     }
 }
 
-module.exports = {login, register, verification}
+async function sendForgotPasswordOtp(request, response) {
+    const {email} = request.body
+    const user = await User.findOne({where: {email}})
+    if (user) {
+        const forgotPassword = await ForgotPassword.findOne({user_id: user.user_id})
+        if(forgotPassword) await forgotPassword.destroy()
+        const code = (Math.random() * 1E9).toString().slice(0, 6)
+        await ForgotPassword.create({user_id: user.user_id, code: code});
+        transporter.sendMail(mailOptions(user.email, 'Forgot Passsword', 'forgot-password', {
+            code: code,
+        }), function (error, info) {
+            if (error) {
+                return console.log(error)
+            }
+            console.log('Message sent: ' + info.response)
+        })
+    }
+    response.status(200).json({
+        status: 200,
+        message: 'Berhasil kirim otp'
+    })
+}
+
+async function forgotPassword(request, response) {
+    const {email, code, password} = request.body
+    const user = await User.findOne({where: {email}})
+    const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+    if (!user) return response.status(400).json({
+        status: 400,
+        message: 'Gagal untuk update password dikarenakan email tidak sesuai'
+    })
+    const forgotPassword = await ForgotPassword.findOne({where: {user_id: user.user_id, code}})
+    if(!forgotPassword) return response.status(400).json({
+        status: 400,
+        message: 'Gagal untuk update password dikarenakan code tidak sesuai '
+    })
+    await user.update({password: hashedPassword})
+    await forgotPassword.destroy()
+    return response.status(200).json({
+        status: 200,
+        message: 'Berhasil ubah password'
+    })
+}
+
+module.exports = {login, register, verification, sendForgotPasswordOtp, forgotPassword}

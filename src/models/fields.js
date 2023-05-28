@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Gallery, {
         foreignKey: 'field_id'
       })
+      this.hasMany(models.DaysActive, {
+        foreignKey: 'field_id'
+      })
     }
   }
   Fields.init({

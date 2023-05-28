@@ -24,6 +24,10 @@ const authentication = async (req, res, next) => {
             return
         }
     } catch (error) {
+        console.log(error.name)
+        if(error.name === 'TokenExpiredError') {
+            return res.status(401).json({status: 400, message: 'Token Expired'})
+        }
         return res.status(500).json({
             status: 500,
             message: 'Terjadi kesalahan pada server'

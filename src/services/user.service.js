@@ -30,7 +30,7 @@ async function login(request, response) {
                 '"fcm_token" required'
             ]
         })
-        const token = signToken({email: user.email, user_id: user.user_id})
+        const token = signToken({email: user.email, user_id: user.user_id, type: user.type})
         await Auth.create({user_id: user.user_id, token: token})
 
         response.status(200).json({

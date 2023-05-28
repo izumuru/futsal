@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     payment_type_id: DataTypes.INTEGER,
     logo: DataTypes.STRING,
     payment_method_name: DataTypes.STRING,
-    platform_payment_method: DataTypes.ENUM,
+    platform_payment_method: DataTypes.ENUM('web','mobile'),
     payment_admin_percent: DataTypes.DOUBLE,
     payment_admin_nominal: DataTypes.DOUBLE
   }, {

@@ -30,14 +30,18 @@ module.exports = {
       },
       platform_payment_method: {
         allowNull: false,
-        type: Sequelize.ENUM
+        type: Sequelize.ENUM,
+        values: [
+          'web',
+          'mobile',
+        ]
       },
       payment_admin_percent: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DOUBLE
       },
       payment_admin_nominal: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DOUBLE
       },
       createdAt: {

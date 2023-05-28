@@ -29,7 +29,8 @@
     "nodemon": "^2.0.22",
     "pg": "^8.11.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.31.1"
+    "sequelize": "^6.31.1",
+    "uid": "^2.0.2"
   },
   "devDependencies": {
     "sequelize-cli": "^6.6.0"

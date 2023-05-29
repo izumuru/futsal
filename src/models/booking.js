@@ -10,7 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Fields, {
+        foreignKey: 'field_id'
+      });
+      this.belongsTo(models.User, {
+        foreignKey: 'user_id'
+      })
+      this.belongsTo(models.PaymentMethod, {
+        foreignKey: 'payment_method_id'
+      })
     }
   }
   Booking.init({
@@ -29,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     booking_code: DataTypes.STRING,
     day_price: DataTypes.DOUBLE,
     night_price: DataTypes.DOUBLE,
+    admin_price: DataTypes.DOUBLE,
     day_price_quantity: DataTypes.INTEGER,
     night_price_quantity: DataTypes.INTEGER,
     virtual_account_code: DataTypes.STRING,

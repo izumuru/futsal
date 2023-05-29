@@ -10,6 +10,7 @@ const adminAuthorization = require('../middleware/admin.authorization')
 const { addOperator, detailOperator, setOperatorStatus, updateOperator, getOperator, } = require("../services/operator.service");
 const storage = require("../helpers/file_upload");
 const {multerWithErrorHandling} = require("../helpers/erorr_handling");
+const {getUserProfile} = require("../services/user.service");
 
 const bodyAddOperator = Joi.object({
     name: Joi.string().required(),
@@ -34,6 +35,7 @@ const queryOperators = Joi.object({
 const uploadFile = storage.fields([{name: 'thumbnail', maxCount: 1}, {name: 'ktp', maxCount: 1}])
 
 router.use(adminAuthorization)
+router.get('/profile', getUserProfile)
 router.get('/operators',validator.query(queryOperators), getOperator)
 router.post('/operators', (req, res, next) => {
     multerWithErrorHandling(uploadFile, req, res, next)

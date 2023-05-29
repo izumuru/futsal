@@ -85,6 +85,16 @@ async function register(request, response) {
     }
 }
 
+async function getUserProfile(request, response){
+    const user = {};
+    Object.keys(response.locals.user.dataValues).forEach(value => {
+        if(value !== "password") {
+            user[value] = response.locals.user[value]
+        }
+    })
+    return response.status(200).json(user)
+}
+
 async function verification(request, response) {
     try {
         const {token} = request.query
@@ -156,4 +166,4 @@ async function forgotPassword(request, response) {
     })
 }
 
-module.exports = {login, register, verification, sendForgotPasswordOtp, forgotPassword}
+module.exports = {login, register, verification, sendForgotPasswordOtp, forgotPassword, getUserProfile}

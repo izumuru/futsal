@@ -30,7 +30,13 @@ async function login(request, response) {
                 '"fcm_token" required'
             ]
         })
-        const token = signToken({email: user.email, user_id: user.user_id, type: user.type})
+        const userSchema = {};
+        Object.keys(user.dataValues).forEach(value => {
+            if(value !== "password") {
+                userSchema[value] = user.dataValues[value]
+            }
+        })
+        const token = signToken(userSchema)
         await Auth.create({user_id: user.user_id, token: token})
 
         response.status(200).json({

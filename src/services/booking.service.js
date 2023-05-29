@@ -35,6 +35,8 @@ async function createWebBooking(request, response) {
             booking_code: uid(12),
             day_price: typePrice === "day" ? field.harga : null,
             night_price: typePrice === "night" ? field.harga_malam: null,
+            day_price_quantity: typePrice === "day" ? duration : null,
+            night_price_quantity: typePrice === "night" ? duration : null,
             tanggal_pembayaran: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
             platform_booking: "web",
             booking_payment_method_name: "cash"

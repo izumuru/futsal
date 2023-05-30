@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const {signToken} = require("../helpers/jwt");
 const {transporter, mailOptions} = require("../helpers/mail");
 const {uid} = require("uid");
+const moment = require("moment");
 
 async function login(request, response) {
     try {
@@ -74,8 +75,9 @@ async function register(request, response) {
             type: 'customer',
             fcm_token: fcm_token,
             isaktif: false,
-            username: "customer" + Math.round(Math.random() * 1E9)
+            gender: 'LK'
         }, {returning: true})
+        user.update({username: "customer" + moment(new Date()).format('DDMMYYYY') + `-${user.user_id}`})
         response.status(201).json({
             status: 201,
             message: 'Berhasil register user'
@@ -103,7 +105,7 @@ async function getUserProfile(request, response){
     Object.keys(response.locals.user.dataValues).forEach(value => {
         if(value !== "password") {
             if(value === "thumbnail"){
-                user[value] = process.env.APP_URL + '/' + response.locals.user[value]
+                user[value] = response.locals.user[value] !== null ? process.env.APP_URL + '/' + response.locals.user[value] : null
             } else {
                 user[value] = response.locals.user[value]
             }
@@ -115,8 +117,7 @@ async function getUserProfile(request, response){
 async function updateUser(request, response) {
     try {
         const user = await User.findByPk(response.locals.user.user_id)
-        const file = request.file.filename
-        console.log(file)
+        const file = request.file
         const {name, no_hp, address} = request.body
         if(!user) return response.status(400).json({
             status: 400,
@@ -126,7 +127,7 @@ async function updateUser(request, response) {
         user.no_hp = no_hp
         user.address = address
         if(file) {
-            user.thumbnail = file
+            user.thumbnail = file.filename
         }
         await user.save()
         return response.status(200).json({
@@ -134,6 +135,7 @@ async function updateUser(request, response) {
             message: "Berhasil update"
         })
     } catch (e) {
+        console.log(e)
         return response.status(500).json({
             status: 500,
             message: "Internal server error"

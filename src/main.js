@@ -8,6 +8,7 @@ const authRouter = require('./routes/auth.route');
 const userRouter = require('./routes/user.route')
 const fieldRouter = require('./routes/field.route')
 const bookingRouter = require('./routes/booking.route')
+const paymentRouter = require('./routes/payment.route')
 const authentication = require('./middleware/authentication')
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(authentication)
 app.use('/user', userRouter)
 app.use('/bookings', bookingRouter)
 app.use('/fields', fieldRouter)
+app.use('/payments', paymentRouter)
 
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.isJoi) {

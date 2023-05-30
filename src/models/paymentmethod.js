@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Booking, {
         foreignKey: 'payment_method_id'
       })
+      this.belongsTo(models.PaymentType, {
+        foreignKey: 'payment_types_id'
+      })
     }
   }
   PaymentMethod.init({

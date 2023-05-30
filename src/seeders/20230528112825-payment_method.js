@@ -25,16 +25,6 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
-                payment_method_id: 3,
-                payment_types_id: 1,
-                logo: 'mandiri.jpg',
-                payment_method_name: "Mandiri",
-                payment_admin_nominal: 4000,
-                platform_payment_method: "mobile",
-                createdAt: new Date(),
-                updatedAt: new Date()
-            },
-            {
                 payment_method_id: 4,
                 payment_types_id: 1,
                 logo: 'Bni.jpg',
@@ -49,7 +39,7 @@ module.exports = {
                 payment_types_id: 2,
                 logo: 'alfamart.jpg',
                 payment_method_name: "Alfamart",
-                payment_admin_percent: 0.7,
+                payment_admin_nominal: 5000,
                 platform_payment_method: "mobile",
                 createdAt: new Date(),
                 updatedAt: new Date()

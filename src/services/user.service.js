@@ -128,7 +128,7 @@ async function updateUser(request, response) {
         })
         user.name = name
         user.no_hp = no_hp
-        user.address = address
+        user.alamat = address
         if(file) {
             user.thumbnail = file.filename
         }

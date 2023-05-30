@@ -3,50 +3,16 @@ const {sequelize} = require('../models/index')
 const {uid} = require('uid')
 const {getDate} = require('../helpers/date')
 const moment = require("moment/moment");
-
+const axios = require("axios");
+const {response} = require("express");
 async function createWebBooking(request, response) {
     const t = await sequelize.transaction()
     try {
-        const {
-            field_id: fieldId,
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            duration,
-        } = request.body
-        const field = await Fields.findOne({where: {field_id: fieldId}})
-        if (!field) return response.status(404).json({
-            status: 404,
-            message: "Lapangan tidak ditemukan"
-        })
-        let price = field.harga
-        let typePrice = "day"
-        if (field.waktu_mulai_malam === bookingTime) {
-            price = field.harga_malam
-            typePrice = "night"
-        }
-        const bookingExist = await Booking.findOne({where: {booking_time: bookingTime, booking_date: bookingDate}, lock: true})
-        if (bookingExist) return response.status(400).json({
-            status: 400,
-            message: "Lapangan sudah di booking untuk waktu tersebut"
-        })
-        const paymentMethod = await PaymentMethod.findOne({where: {platform_payment_method: "web"}})
-        const booking = await Booking.create({
-            payment_method_id: paymentMethod.payment_method_id,
-            field_id: field.field_id,
-            user_id: response.locals.user.user_id,
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            total_price: (duration * price),
-            status_bayar: "paid",
-            booking_code: uid(12),
-            day_price: typePrice === "day" ? field.harga : null,
-            night_price: typePrice === "night" ? field.harga_malam : null,
-            day_price_quantity: typePrice === "day" ? duration : null,
-            night_price_quantity: typePrice === "night" ? duration : null,
-            tanggal_pembayaran: new Date(),
-            platform_booking: "web",
-            booking_payment_method_name: "Uang Tunai / Cash"
-        }, {returning: true, transaction: t})
+        const user = response.locals.user
+        const validation = await bookingValidation(request, "web")
+        if(validation.status) return response.status(validation.status).json(validation)
+        const payload = await payloadCreateBooking(validation, {userId: user.user_id, platform: "web"})
+        await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
             status: 200,
             message: "Berhasil tambah booking"
@@ -65,50 +31,25 @@ async function createWebBooking(request, response) {
 async function createMobileBooking(request, response) {
     const t = await sequelize.transaction()
     try {
-        const {
-            field_id: fieldId,
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            duration,
-            payment_method_id,
-        } = request.body
-        const field = await Fields.findOne({where: {field_id: fieldId}})
-        if (!field) return response.status(404).json({
-            status: 404,
-            message: "Lapangan tidak ditemukan"
+        const user = response.locals.user
+        const validation = await bookingValidation(request, "mobile")
+        if(validation.status) return response.status(validation.status).json(validation)
+        const orderCode = uid(6).toUpperCase()
+        const createPayment = await createMidtransPayment({
+            type: validation.paymentTypeName,
+            orderId: orderCode,
+            bank: validation.paymentName,
+            user: user,
+            amount: (validation.price * validation.duration) + validation.adminPrice
         })
-        let price = field.harga
-        let typePrice = "day"
-        if (field.waktu_mulai_malam === bookingTime) {
-            price = field.harga_malam
-            typePrice = "night"
-        }
-        const bookingExist = await Booking.findOne({where: {booking_time: bookingTime, booking_date: bookingDate}, lock: true})
-        if (bookingExist) return response.status(400).json({
-            status: 400,
-            message: "Lapangan sudah di booking untuk waktu tersebut"
+        if (createPayment.status_code !== '201') throw new Error(createPayment.status_message)
+        const payload = await payloadCreateBooking(validation, {
+            userId: user.user_id,
+            platform: "mobile",
+            code: createPayment.va_numbers ? createPayment.va_numbers[0].va_number : createPayment.payment_code,
+            expiredDate: createPayment.expiry_time ? createPayment.expiry_time : null
         })
-        const paymentMethod = await PaymentMethod.findOne({where: {field_id: fieldId}, include: {model: PaymentType}})
-        if(!paymentMethod) return response.status(400).json({
-            status: 400,
-            message: "Metode Pembayaran tidak ditemukan"
-        })
-        await Booking.create({
-            payment_method_id: paymentMethod.payment_method_id,
-            field_id: field.field_id,
-            user_id: response.locals.user.user_id,
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            total_price: (duration * price),
-            status_bayar: "waiting",
-            booking_code: uid(12),
-            day_price: typePrice === "day" ? field.harga : null,
-            night_price: typePrice === "night" ? field.harga_malam : null,
-            day_price_quantity: typePrice === "day" ? duration : null,
-            night_price_quantity: typePrice === "night" ? duration : null,
-            platform_booking: "mobile",
-            booking_payment_method_name: paymentMethod.PaymentType.name,
-        }, {returning: true, transaction: t})
+        await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
             status: 200,
             message: "Berhasil tambah booking"
@@ -124,7 +65,114 @@ async function createMobileBooking(request, response) {
     }
 }
 
-async function getListUnavailableTimeField(id, date, time) {
+async function bookingValidation(request, platform) {
+    const {
+        field_id: fieldId,
+        booking_date: bookingDate,
+        booking_time: bookingTime,
+        duration,
+        payment_method_id
+    } = request.body
+    const field = await Fields.findOne({where: {field_id: fieldId}})
+    if (!field) return {
+        status: 404,
+        message: "Lapangan tidak ditemukan"
+    }
+    if(field.booking_close === bookingTime + ":00") {
+        return {
+            status: 400,
+            message: "Lapangan sudah tutup"
+        }
+    }
+    const durationCustomerPlay = parseInt(bookingTime.split(":")[0])
+    const unAvailableTime = await getListUnavailableTimeField(fieldId, bookingDate)
+    const unavailable = unavailableTimeArray(field, bookingDate, unAvailableTime)
+    for(let i = durationCustomerPlay; i < (durationCustomerPlay + duration); i++) {
+        if(unavailable.includes(i)) {
+            return {
+                status: 400,
+                message: "Lapangan sudah di booking untuk waktu tersebut"
+            }
+        }
+    }
+    const bookingExist = await Booking.findOne({
+        where: {booking_time: bookingTime, booking_date: bookingDate},
+        lock: true
+    })
+    if (bookingExist) return {
+        status: 400,
+        message: "Lapangan sudah di booking untuk waktu tersebut"
+    }
+    const paymentMethod = await PaymentMethod.findOne({
+        where: {payment_method_id: payment_method_id ? payment_method_id : 6, platform_payment_method: platform},
+        include: {model: PaymentType}
+    })
+    if (!paymentMethod) return {
+        status: 400,
+        message: "Metode Pembayaran tidak ditemukan"
+    }
+
+    let price = field.harga
+    let typePrice = "day"
+    if (field.waktu_mulai_malam === bookingTime) {
+        price = field.harga_malam
+        typePrice = "night"
+    }
+    return {
+        price,
+        typePrice,
+        bookingDate,
+        bookingTime,
+        duration,
+        fieldId: field.field_id,
+        paymentId: paymentMethod.dataValues.payment_method_id,
+        paymentName: paymentMethod.dataValues.payment_method_name,
+        paymentTypeName: paymentMethod.dataValues.PaymentType.dataValues.payment_type_name,
+        adminPrice: paymentMethod.dataValues.payment_admin_nominal
+    }
+}
+
+async function payloadCreateBooking(validation, payload) {
+    const {userId, platform, code, expiredDate} = payload
+    const {
+        price,
+        typePrice,
+        bookingDate,
+        bookingTime,
+        duration,
+        fieldId,
+        paymentId,
+        paymentName,
+        adminPrice,
+    } = validation
+    const data = {
+        payment_method_id: paymentId,
+        field_id: fieldId,
+        user_id: userId,
+        booking_date: bookingDate,
+        booking_time: bookingTime,
+        total_price: (duration * price) + adminPrice,
+        booking_code: uid(6).toUpperCase(),
+        day_price: typePrice === "day" ? price * duration : null,
+        night_price: typePrice === "night" ? price * duration : null,
+        day_price_quantity: typePrice === "day" ? duration : null,
+        night_price_quantity: typePrice === "night" ? duration : null,
+        platform_booking: platform,
+        booking_payment_method_name: paymentName
+    }
+    if (platform === "web") {
+        data['tanggal_pembayaran'] = new Date()
+        data["status_bayar"] = "paid"
+    } else {
+        data['virtual_account_code'] = code
+        data['tanggal_batas_pembayaran'] = expiredDate
+        data['status_bayar'] = "waiting"
+        data['admin_price'] = adminPrice
+    }
+    return data
+}
+
+async function getListUnavailableTimeField(id, date) {
     const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
     const data = []
     bookings.forEach((value) => {
@@ -195,7 +243,7 @@ async function getDetailBooking(request, response) {
             'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran'
         ]
     })
-    if(!booking) return response.status(404).json({
+    if (!booking) return response.status(404).json({
         status: 404,
         message: "Booking tidak ditemukan"
     })
@@ -243,6 +291,23 @@ async function getAvailableTime(request, response) {
     })
 }
 
+function unavailableTimeArray(field, date, list) {
+    const open = parseInt(field.booking_open.split(':')[0])
+    const close = parseInt(field.booking_close.split(':')[0])
+    const dateConvert = new Date(date)
+    const unavailable = []
+    for (let i = open; i < close; i++) {
+        const dateTime = addHourToDate(dateConvert, i)
+        for (const elm of list) {
+            if (dateTime >= elm[0] && dateTime < elm[1]) {
+                unavailable.push(i)
+                break;
+            }
+        }
+    }
+    return unavailable
+}
+
 function availableTime(field, date, list) {
     const open = parseInt(field.booking_open.split(':')[0])
     const close = parseInt(field.booking_close.split(':')[0])
@@ -272,8 +337,51 @@ function addHourToDate(date, hour, incrementHour) {
     return dateTime + (hour * time)
 }
 
+
+async function createMidtransPayment(payload) {
+    try {
+        const {type, orderId, amount, bank, user} = payload
+        const requestPayload = type !== 'Gerai' ? vaPayload(orderId, amount, bank) : otcPayload(orderId, amount, 'alfamart', user)
+        const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_URL, requestPayload, {
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                Authorization: `Basic ${process.env.MIDTRANS_AUTH}`
+            }
+        })
+        console.log(data)
+        return data;
+    } catch (e) {
+        console.log(e)
+        return e.data
+    }
+
+}
+
+function vaPayload(orderId, amount, bank) {
+    return {
+        payment_type: 'bank_transfer',
+        transaction_details: {order_id: `order_id-${orderId}`, gross_amount: amount},
+        bank_transfer: {bank}
+    }
+}
+
+function otcPayload(orderId, amount, store, user) {
+    return {
+        payment_type: 'cstore',
+        transaction_details: {order_id: `order_id-${orderId}`, gross_amount: amount},
+        cstore: {store},
+        customer_details: {
+            first_name: user.name,
+            email: user.email,
+            phone: user.no_hp
+        }
+    }
+}
+
+
 function getDateBasedFormat(unixTime, format) {
     return moment.unix(unixTime / 1000).utc().locale('id').format(format)
 }
 
-module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking}
+module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking}

@@ -111,7 +111,10 @@ async function getUserProfile(request, response){
             }
         }
     })
-    return response.status(200).json(user)
+    return response.status(200).json({
+        status: 200,
+        data: user
+    })
 }
 
 async function updateUser(request, response) {

@@ -223,8 +223,10 @@ async function getField(request, response) {
 
 async function getDays(request, response) {
     const days = await Days.findAll()
-    console.log(days)
-    return response.status(200).json(days.map(value => ({day_id: value.day_id, name: value.day_name})))
+    return response.status(200).json({
+        status: 200,
+        data: days.map(value => ({day_id: value.day_id, name: value.day_name}))
+    })
 }
 
 module.exports = {addField, deleteImage, updateFieldImage, updateField, detailField, getField, getDays}

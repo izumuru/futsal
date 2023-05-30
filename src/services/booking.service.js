@@ -1,4 +1,4 @@
-const {Fields, Booking, PaymentMethod, User} = require('../models')
+const {Fields, Booking, PaymentMethod, User, PaymentType} = require('../models')
 const {sequelize} = require('../models/index')
 const {uid} = require('uid')
 const {getDate} = require('../helpers/date')
@@ -62,6 +62,68 @@ async function createWebBooking(request, response) {
     }
 }
 
+async function createMobileBooking(request, response) {
+    const t = await sequelize.transaction()
+    try {
+        const {
+            field_id: fieldId,
+            booking_date: bookingDate,
+            booking_time: bookingTime,
+            duration,
+            payment_method_id,
+        } = request.body
+        const field = await Fields.findOne({where: {field_id: fieldId}})
+        if (!field) return response.status(404).json({
+            status: 404,
+            message: "Lapangan tidak ditemukan"
+        })
+        let price = field.harga
+        let typePrice = "day"
+        if (field.waktu_mulai_malam === bookingTime) {
+            price = field.harga_malam
+            typePrice = "night"
+        }
+        const bookingExist = await Booking.findOne({where: {booking_time: bookingTime, booking_date: bookingDate}, lock: true})
+        if (bookingExist) return response.status(400).json({
+            status: 400,
+            message: "Lapangan sudah di booking untuk waktu tersebut"
+        })
+        const paymentMethod = await PaymentMethod.findOne({where: {field_id: fieldId}, include: {model: PaymentType}})
+        if(!paymentMethod) return response.status(400).json({
+            status: 400,
+            message: "Metode Pembayaran tidak ditemukan"
+        })
+        await Booking.create({
+            payment_method_id: paymentMethod.payment_method_id,
+            field_id: field.field_id,
+            user_id: response.locals.user.user_id,
+            booking_date: bookingDate,
+            booking_time: bookingTime,
+            total_price: (duration * price),
+            status_bayar: "waiting",
+            booking_code: uid(12),
+            day_price: typePrice === "day" ? field.harga : null,
+            night_price: typePrice === "night" ? field.harga_malam : null,
+            day_price_quantity: typePrice === "day" ? duration : null,
+            night_price_quantity: typePrice === "night" ? duration : null,
+            platform_booking: "mobile",
+            booking_payment_method_name: paymentMethod.PaymentType.name,
+        }, {returning: true, transaction: t})
+        response.status(200).json({
+            status: 200,
+            message: "Berhasil tambah booking"
+        })
+        t.commit()
+    } catch (error) {
+        t.rollback()
+        console.log(error)
+        response.status(500).json({
+            status: 500,
+            message: "Internal server error"
+        })
+    }
+}
+
 async function getListUnavailableTimeField(id, date, time) {
     const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
     const data = []
@@ -107,7 +169,10 @@ async function getBookingGroupByField(request, response) {
             })
         }
     })
-    response.status(200).json(schema)
+    response.status(200).json({
+        status: 200,
+        data: schema
+    })
 }
 
 async function getDetailBooking(request, response) {
@@ -157,7 +222,10 @@ async function getDetailBooking(request, response) {
             thumbnail: booking.User.thumbnail !== null ? `${process.env.APP_URL}/${booking.User.thumbnail}` : null
         },
     }
-    response.status(200).json(schema)
+    response.status(200).json({
+        status: 200,
+        data: schema
+    })
 }
 
 async function getAvailableTime(request, response) {
@@ -169,7 +237,10 @@ async function getAvailableTime(request, response) {
         message: "Lapangan tidak ditemukan"
     })
     const list = await getListUnavailableTimeField(id, date);
-    response.status(200).json(availableTime(field, date, list))
+    response.status(200).json({
+        status: 200,
+        data: availableTime(field, date, list)
+    })
 }
 
 function availableTime(field, date, list) {

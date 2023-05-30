@@ -10,8 +10,8 @@ async function addOperator(request, response) {
         const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
         const {thumbnail, ktp} = request.files
         if(!thumbnail || !ktp) {
-            return response.status(400).json({
-                status: 400,
+            return response.status(422).json({
+                status: 422,
                 error: [
                     '"thumbnail" required',
                     '"ktp" required'
@@ -141,26 +141,32 @@ async function getOperator(request, response) {
     })
     if(request.query.type === 'active') {
         console.log(operators)
-        return response.status(200).json(operators.map(value => {
-            return {
-                user_id: value.user_id,
-                name: value.name,
-                email: value.email,
-                username: value.username,
-                isaktif: value.isaktif,
-                no_hp: value.no_hp,
-                gender: value.gender,
-            }
-        }))
+        return response.status(200).json({
+            status: 200,
+            data: operators.map(value => {
+                return {
+                    user_id: value.user_id,
+                    name: value.name,
+                    email: value.email,
+                    username: value.username,
+                    isaktif: value.isaktif,
+                    no_hp: value.no_hp,
+                    gender: value.gender,
+                }
+            })
+        })
     } else {
-        return response.status(200).json(operators.map(value => {
-            return {
-                name: value.name,
-                username: value.username,
-                no_hp: value.no_hp,
-                isaktif: value.isaktif
-            }
-        }))
+        return response.status(200).json({
+            status: 200,
+            data: operators.map(value => {
+                return {
+                    name: value.name,
+                    username: value.username,
+                    no_hp: value.no_hp,
+                    isaktif: value.isaktif
+                }
+            })
+        })
     }
 }
 

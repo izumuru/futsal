@@ -33,8 +33,8 @@ app.use('/payments', paymentRouter)
 
 app.use((err, req, res, next) => {
     if(err && err.error && err.error.isJoi) {
-        res.status(400).json({
-            status: 400,
+        res.status(422).json({
+            status: 422,
             errors: err.error.details.map(value => value.message)
         })
     } else {

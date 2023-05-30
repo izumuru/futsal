@@ -2,6 +2,7 @@ const {User, Auth, ForgotPassword} = require("../models");
 const bcrypt = require("bcrypt");
 const {signToken} = require("../helpers/jwt");
 const {transporter, mailOptions} = require("../helpers/mail");
+const {uid} = require("uid");
 
 async function login(request, response) {
     try {
@@ -72,7 +73,8 @@ async function register(request, response) {
             password: hashedPassword,
             type: 'customer',
             fcm_token: fcm_token,
-            isaktif: false
+            isaktif: false,
+            username: "customer" + Math.round(Math.random() * 1E9)
         }, {returning: true})
         response.status(201).json({
             status: 201,
@@ -100,10 +102,43 @@ async function getUserProfile(request, response){
     const user = {};
     Object.keys(response.locals.user.dataValues).forEach(value => {
         if(value !== "password") {
-            user[value] = response.locals.user[value]
+            if(value === "thumbnail"){
+                user[value] = process.env.APP_URL + '/' + response.locals.user[value]
+            } else {
+                user[value] = response.locals.user[value]
+            }
         }
     })
     return response.status(200).json(user)
+}
+
+async function updateUser(request, response) {
+    try {
+        const user = await User.findByPk(response.locals.user.user_id)
+        const file = request.file.filename
+        console.log(file)
+        const {name, no_hp, address} = request.body
+        if(!user) return response.status(400).json({
+            status: 400,
+            message: "User tidak ditemukan"
+        })
+        user.name = name
+        user.no_hp = no_hp
+        user.address = address
+        if(file) {
+            user.thumbnail = file
+        }
+        await user.save()
+        return response.status(200).json({
+            status: 200,
+            message: "Berhasil update"
+        })
+    } catch (e) {
+        return response.status(500).json({
+            status: 500,
+            message: "Internal server error"
+        })
+    }
 }
 
 async function verification(request, response) {
@@ -177,4 +212,4 @@ async function forgotPassword(request, response) {
     })
 }
 
-module.exports = {login, register, verification, sendForgotPasswordOtp, forgotPassword, getUserProfile}
+module.exports = {login, register, verification, sendForgotPasswordOtp, forgotPassword, getUserProfile, updateUser}

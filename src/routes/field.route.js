@@ -42,15 +42,16 @@ const uploadImage = storage.array('fieldImages', 5)
 const singleUploadImage = storage.single('fieldImages')
 
 
-router.use(adminAuthorization)
 router.get('/', getField)
 router.get('/days', getDays)
+router.get('/:id', validator.params(paramsValidation), detailField)
+
+router.use(adminAuthorization)
 router.post('/', (req, res, next) => {
     multerWithErrorHandling(uploadImage, req, res, next)
 }, validator.body(bodyAddField), addField)
 
 router.put('/:id', validator.params(paramsValidation), validator.body(bodyUpdateField), updateField)
-router.get('/:id', validator.params(paramsValidation), detailField)
 router.patch('/:field_id/gallery/:id', validator.params(paramsValidationImage),(req, res, next) => {
     multerWithErrorHandling(singleUploadImage, req, res, next)
 }, updateFieldImage)

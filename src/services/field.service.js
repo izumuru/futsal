@@ -201,14 +201,17 @@ async function detailField(request, response) {
 }
 
 async function getField(request, response) {
-    const fields = await Fields.findAll({include: {model: Gallery}})
+    const fields = await Fields.findAll({include: [{model: Gallery}, {model: DaysActive, include: Days}]})
     return response.status(200).json({
         status: 200,
         data: fields.map(value => {
             const data = {
                 name: value.name,
                 harga: value.harga,
-                harga_malam: value.harga_malam
+                harga_malam: value.harga_malam,
+                open: value.booking_open.split(':')[0] + ":00",
+                close: value.booking_close.split(':')[0] + ":00",
+                days_active: value.DaysActives.map(value => value.Day.day_name).join(', '),
             }
             if (value.Galleries.length > 0) {
                 data['image'] = process.env.APP_URL + '/' + value.Galleries.shift().image

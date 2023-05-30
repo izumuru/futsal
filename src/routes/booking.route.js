@@ -22,10 +22,11 @@ const querySchema = Joi.object({
     date: Joi.date().required()
 })
 
+router.get('/field/:field_id', validator.params(paramsField), validator.query(querySchema), getAvailableTime)
+
 router.use(opadmin)
 router.get('/fields', validator.query(querySchema), getBookingGroupByField)
 router.get('/:booking_id', validator.params(paramsId), getDetailBooking)
 router.post('/', validator.body(bodyCreateBooking), createWebBooking)
-router.get('/field/:field_id', validator.params(paramsField), validator.query(querySchema), getAvailableTime)
 
 module.exports = router

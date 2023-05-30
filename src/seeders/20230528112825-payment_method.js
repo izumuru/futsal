@@ -5,6 +5,7 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         return queryInterface.bulkInsert('PaymentMethods', [
             {
+                payment_method_id: 1,
                 payment_types_id: 1,
                 logo: 'bca.jpg',
                 payment_method_name: "BCA",
@@ -14,6 +15,7 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
+                payment_method_id: 2,
                 payment_types_id: 1,
                 logo: 'bri.jpg',
                 payment_method_name: "BRI",
@@ -23,6 +25,7 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
+                payment_method_id: 3,
                 payment_types_id: 1,
                 logo: 'mandiri.jpg',
                 payment_method_name: "Mandiri",
@@ -32,6 +35,7 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
+                payment_method_id: 4,
                 payment_types_id: 1,
                 logo: 'Bni.jpg',
                 payment_method_name: "BNI",
@@ -41,6 +45,7 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
+                payment_method_id: 5,
                 payment_types_id: 2,
                 logo: 'alfamart.jpg',
                 payment_method_name: "Alfamart",
@@ -50,6 +55,7 @@ module.exports = {
                 updatedAt: new Date()
             },
             {
+                payment_method_id: 6,
                 payment_types_id: 3,
                 logo: '',
                 payment_method_name: "Cash",
@@ -61,11 +67,6 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        /**
-         * Add commands to revert seed here.
-         *
-         * Example:
-         * await queryInterface.bulkDelete('People', null, {});
-         */
+        return queryInterface.bulkDelete('PaymentMethods', null, {});
     }
 };

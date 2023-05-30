@@ -9,8 +9,8 @@ async function addOperator(request, response) {
         const {name, email, no_hp, password, address, gender} = request.body
         const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
         const {thumbnail, ktp} = request.files
-        if(thumbnail.length === 0 || ktp.length === 0) {
-            return response.status(400).status({
+        if(!thumbnail || !ktp) {
+            return response.status(400).json({
                 status: 400,
                 error: [
                     '"thumbnail" required',
@@ -18,6 +18,11 @@ async function addOperator(request, response) {
                 ]
             })
         }
+        const emailExist = await User.findOne({where: {email}})
+        if(emailExist) return response.status(400).json({
+            status: 400,
+            message: 'User dengan email ini sudah ada'
+        })
         const user = await User.create({
             name,
             email,

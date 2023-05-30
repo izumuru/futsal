@@ -60,6 +60,11 @@ async function register(request, response) {
     try {
         const {name, email, no_hp, password, fcm_token} = request.body
         const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+        const emailExist = await User.findOne({where: {email}})
+        if(emailExist) return response.status(400).json({
+            status: 400,
+            message: 'User dengan email ini sudah ada'
+        })
         const user = await User.create({
             name: name,
             email: email,

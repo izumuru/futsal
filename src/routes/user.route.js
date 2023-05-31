@@ -1,6 +1,5 @@
 //node modules
 const express = require('express')
-
 const {validator } = require('./index')
 const router = express.Router()
 const Joi = require("joi");

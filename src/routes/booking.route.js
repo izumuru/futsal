@@ -3,7 +3,9 @@ const {validator} = require('./index')
 const Joi = require("joi");
 const router = express.Router()
 const opadmin = require('../middleware/opadmin.authorization')
-const {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking} = require('../services/booking.service')
+const {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking,
+    getListBooking
+} = require('../services/booking.service')
 
 const bodyCreateBooking = Joi.object({
     field_id: Joi.number().required(),
@@ -29,12 +31,17 @@ const paramsId = Joi.object({
 const querySchema = Joi.object({
     date: Joi.date().required()
 })
+const listBookingSchema = Joi.object({
+    status_bayar: Joi.string().valid('paid', 'canceled', 'waiting'),
+    date: Joi.date().required()
+})
 
 router.get('/field/:field_id', validator.params(paramsField), validator.query(querySchema), getAvailableTime)
 router.post('/mobile', validator.body(bodyCreateBookingMobile), createMobileBooking)
 
 router.use(opadmin)
 router.get('/fields', validator.query(querySchema), getBookingGroupByField)
+router.get('/list', validator.query(listBookingSchema), getListBooking)
 router.get('/:booking_id', validator.params(paramsId), getDetailBooking)
 router.post('/', validator.body(bodyCreateBooking), createWebBooking)
 

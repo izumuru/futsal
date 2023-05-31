@@ -1,5 +1,5 @@
 const { verifyToken } = require("../helpers/jwt");
-const { User } = require("../models");
+const { User, Auth } = require("../models");
 
 const authentication = async (req, res, next) => {
     try {
@@ -12,6 +12,9 @@ const authentication = async (req, res, next) => {
             return
         } else {
             const result = verifyToken(token);
+            const authToken = await Auth.findOne({where: {user_id: result.user_id, token}})
+            // console.log(authToken)
+            if(!authToken.is_valid) throw new Error("Token Invalid")
             const user = await User.findByPk(result.user_id);
             if (user.email === result.email) {
                 res.locals.user = user
@@ -26,8 +29,9 @@ const authentication = async (req, res, next) => {
     } catch (error) {
         console.log(error.name)
         if(error.name === 'TokenExpiredError') {
-            return res.status(401).json({status: 400, message: 'Token Expired'})
+            return res.status(401).json({status: 401, message: 'Token Expired'})
         }
+        if(error.message === "Token Invalid") return res.status(401).json({status: 401, message: 'Token Invalid'})
         return res.status(500).json({
             status: 500,
             message: 'Terjadi kesalahan pada server'

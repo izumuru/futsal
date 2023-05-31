@@ -5,8 +5,8 @@ const express = require('express')
 const Joi = require("joi");
 const router = express.Router()
 //local
-const {login, register, verification, sendForgotPasswordOtp, forgotPassword} = require("../services/user.service");
-
+const {login, register, verification, sendForgotPasswordOtp, forgotPassword, logout} = require("../services/user.service");
+const authentication = require('../middleware/authentication')
 
 //validation
 const loginValidationSchema = Joi.object({
@@ -41,5 +41,8 @@ router.post('/register', validator.body(registerValidationSchema), register)
 router.get('/verification', validator.query(queryVerification), verification)
 router.post('/otp-forgot-password', validator.body(sendOtp), sendForgotPasswordOtp)
 router.put('/forgot-password', validator.body(forgotPasswordSchema), forgotPassword)
+
+router.use(authentication)
+router.post('/logout', logout)
 
 module.exports = router

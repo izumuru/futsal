@@ -1,10 +1,11 @@
 const {Fields, Booking, PaymentMethod, User, PaymentType} = require('../models')
 const {sequelize} = require('../models/index')
 const {uid} = require('uid')
-const {getDate} = require('../helpers/date')
+const {getDate, getDateBasedFormat, addHourToDate} = require('../helpers/date')
 const moment = require("moment/moment");
 const axios = require("axios");
 const {response} = require("express");
+const {admin} = require("../helpers/firebase");
 async function createWebBooking(request, response) {
     const t = await sequelize.transaction()
     try {
@@ -215,6 +216,10 @@ async function getDetailBooking(request, response) {
                 model: Fields,
                 attributes: ['name']
             },
+            {
+                model: Gallery,
+                attributes: []
+            }
         ],
         attributes: [
             'day_price', 'night_price', 'total_price',
@@ -256,6 +261,31 @@ async function getDetailBooking(request, response) {
     })
 }
 
+async function getListBooking(request, response) {
+    const {status_bayar, date} = request.query
+    const condition = {
+        where: {
+            booking_date: date
+        },
+        include: [{model: Fields, attributes: ['name']}, {model: User, attributes: ['name']}]
+    }
+    if(status_bayar) {
+        condition['where']['status_bayar'] = status_bayar
+    }
+    const bookings = await Booking.findAll(condition)
+    return response.status(200).json({
+        status: 200,
+        data: bookings.map((value) => {
+            return {
+                user_name: value.User.name,
+                field_name: value.Field.name,
+                booking_date: getDateBasedFormat(addHourToDate(value.booking_date, parseInt(value.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
+                duration: value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity
+            }
+        })
+    })
+}
+
 async function getAvailableTime(request, response) {
     const {date} = request.query
     const {field_id: id} = request.params
@@ -273,18 +303,22 @@ async function getAvailableTime(request, response) {
 
 async function midtransCallback(request, response) {
     const {va_numbers, transaction_status, payment_type, payment_code} = request.body
-    let code;
-    if(payment_type !== 'bank_transfer') {
-        code = payment_code
-    } else {
+    let code = payment_code;
+    if(payment_type === 'bank_transfer') {
         code = va_numbers[0].va_number
     }
-    const booking = await Booking.findOne({where: {virtual_account_code:code}})
+    const booking = await Booking.findOne({where: {virtual_account_code:code}, include: [{model: Fields, attributes: ['name']}, {model : User, attributes: ['fcm_token']}]})
+    let update
     if(transaction_status === "settlement") {
-        booking.update({status_bayar: "paid", tanggal_pembayaran: new Date()})
+        update = {status_bayar: "paid", tanggal_pembayaran: new Date()}
+        await admin.messaging().sendToDevice(booking.User.fcm_token, {
+            title: "Pemesanan lapangan berhasil dibayar",
+            body: `Pemesanan ${booking.Field.name} pada tanggal ${getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm')} berhasil di booking`
+        })
     } else if(['deny', 'cancel', 'expire'].includes(transaction_status)) {
-        booking.update({status_bayar: "canceled"})
+        update = {status_bayar: "canceled"}
     }
+    await booking.update(update)
     return response.status(200).json('success');
 }
 
@@ -339,17 +373,6 @@ function availableTime(field, date, list) {
     }
     return available
 }
-
-function addHourToDate(date, hour, incrementHour) {
-    const time = 60 * 60 * 1000
-    let dateTime = date.getTime()
-    if (incrementHour) {
-        return dateTime + ((hour + incrementHour) * time)
-    }
-    return dateTime + (hour * time)
-}
-
-
 async function createMidtransPayment(payload) {
     try {
         const {type, orderId, amount, bank, user} = payload
@@ -391,9 +414,4 @@ function otcPayload(orderId, amount, store, user) {
     }
 }
 
-
-function getDateBasedFormat(unixTime, format) {
-    return moment.unix(unixTime / 1000).utc().locale('id').format(format)
-}
-
-module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback}
+module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback, getListBooking}

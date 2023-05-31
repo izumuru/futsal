@@ -10,6 +10,7 @@ const fieldRouter = require('./routes/field.route')
 const bookingRouter = require('./routes/booking.route')
 const paymentRouter = require('./routes/payment.route')
 const authentication = require('./middleware/authentication')
+const {midtransCallback} = require("./services/booking.service");
 
 const app = express();
 app.set('view engine', 'ejs')
@@ -24,6 +25,7 @@ app.use(express.static('public'))
 
 //router
 app.use('/auth', authRouter)
+app.post('/midtrans-callback', midtransCallback)
 
 app.use(authentication)
 app.use('/user', userRouter)

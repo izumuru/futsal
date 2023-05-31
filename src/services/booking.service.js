@@ -11,7 +11,8 @@ async function createWebBooking(request, response) {
         const user = response.locals.user
         const validation = await bookingValidation(request, "web")
         if(validation.status) return response.status(validation.status).json(validation)
-        const payload = await payloadCreateBooking(validation, {userId: user.user_id, platform: "web"})
+        const orderCode = uid(6).toUpperCase()
+        const payload = await payloadCreateBooking(validation, {userId: user.user_id, platform: "web", orderCode: orderCode})
         await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
             status: 200,
@@ -47,7 +48,8 @@ async function createMobileBooking(request, response) {
             userId: user.user_id,
             platform: "mobile",
             code: createPayment.va_numbers ? createPayment.va_numbers[0].va_number : createPayment.payment_code,
-            expiredDate: createPayment.expiry_time ? createPayment.expiry_time : null
+            expiredDate: createPayment.expiry_time ? createPayment.expiry_time : null,
+            orderCode: orderCode
         })
         await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
@@ -95,14 +97,6 @@ async function bookingValidation(request, platform) {
             }
         }
     }
-    const bookingExist = await Booking.findOne({
-        where: {booking_time: bookingTime, booking_date: bookingDate},
-        lock: true
-    })
-    if (bookingExist) return {
-        status: 400,
-        message: "Lapangan sudah di booking untuk waktu tersebut"
-    }
     const paymentMethod = await PaymentMethod.findOne({
         where: {payment_method_id: payment_method_id ? payment_method_id : 6, platform_payment_method: platform},
         include: {model: PaymentType}
@@ -133,7 +127,7 @@ async function bookingValidation(request, platform) {
 }
 
 async function payloadCreateBooking(validation, payload) {
-    const {userId, platform, code, expiredDate} = payload
+    const {userId, platform, code, expiredDate, orderCode} = payload
     const {
         price,
         typePrice,
@@ -152,7 +146,7 @@ async function payloadCreateBooking(validation, payload) {
         booking_date: bookingDate,
         booking_time: bookingTime,
         total_price: (duration * price) + adminPrice,
-        booking_code: uid(6).toUpperCase(),
+        booking_code: orderCode,
         day_price: typePrice === "day" ? price * duration : null,
         night_price: typePrice === "night" ? price * duration : null,
         day_price_quantity: typePrice === "day" ? duration : null,
@@ -169,20 +163,6 @@ async function payloadCreateBooking(validation, payload) {
         data['status_bayar'] = "waiting"
         data['admin_price'] = adminPrice
     }
-    return data
-}
-
-async function getListUnavailableTimeField(id, date) {
-    const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
-    const data = []
-    bookings.forEach((value) => {
-        const key = moment(value.booking_date).format('YYYY-MM-DD')
-        const time = value.booking_time.split(':')
-        const duration = value.day_price_quantity !== null ? value.day_price_quantity : value.night_price_quantity;
-        const date = value.booking_date.getTime()
-        const hour = parseInt(time[0])
-        data.push([date + (hour * 60 * 60 * 1000), date + ((hour + duration) * 60 * 60 * 1000)])
-    })
     return data
 }
 
@@ -291,6 +271,38 @@ async function getAvailableTime(request, response) {
     })
 }
 
+async function midtransCallback(request, response) {
+    const {va_numbers, transaction_status, payment_type, payment_code} = request.body
+    let code;
+    if(payment_type !== 'bank_transfer') {
+        code = payment_code
+    } else {
+        code = va_numbers[0].va_number
+    }
+    const booking = await Booking.findOne({where: {virtual_account_code:code}})
+    if(transaction_status === "settlement") {
+        booking.update({status_bayar: "paid", tanggal_pembayaran: new Date()})
+    } else if(['deny', 'cancel', 'expire'].includes(transaction_status)) {
+        booking.update({status_bayar: "canceled"})
+    }
+    return response.status(200).json('success');
+}
+
+async function getListUnavailableTimeField(id, date) {
+    const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
+    const data = []
+    for(const value of bookings) {
+        if(value.status_bayar === "paid" || value.status_bayar == "waiting") {
+            const time = value.booking_time.split(':')
+            const duration = value.day_price_quantity !== null ? value.day_price_quantity : value.night_price_quantity;
+            const date = value.booking_date.getTime()
+            const hour = parseInt(time[0])
+            data.push([date + (hour * 60 * 60 * 1000), date + ((hour + duration) * 60 * 60 * 1000)])
+        }
+    }
+    return data
+}
+
 function unavailableTimeArray(field, date, list) {
     const open = parseInt(field.booking_open.split(':')[0])
     const close = parseInt(field.booking_close.split(':')[0])
@@ -361,7 +373,7 @@ async function createMidtransPayment(payload) {
 function vaPayload(orderId, amount, bank) {
     return {
         payment_type: 'bank_transfer',
-        transaction_details: {order_id: `order_id-${orderId}`, gross_amount: amount},
+        transaction_details: {order_id: `orderId-${orderId}`, gross_amount: amount},
         bank_transfer: {bank}
     }
 }
@@ -369,7 +381,7 @@ function vaPayload(orderId, amount, bank) {
 function otcPayload(orderId, amount, store, user) {
     return {
         payment_type: 'cstore',
-        transaction_details: {order_id: `order_id-${orderId}`, gross_amount: amount},
+        transaction_details: {order_id: `orderId-${orderId}`, gross_amount: amount},
         cstore: {store},
         customer_details: {
             first_name: user.name,
@@ -384,4 +396,4 @@ function getDateBasedFormat(unixTime, format) {
     return moment.unix(unixTime / 1000).utc().locale('id').format(format)
 }
 
-module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking}
+module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback}

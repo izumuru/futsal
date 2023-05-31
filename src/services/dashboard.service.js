@@ -40,9 +40,8 @@ async function rentTime(request, response) {
         "\tDATE_TRUNC('month', \"updatedAt\")\n" +
         "ORDER BY\n" +
         "\tmonth_play\n" +
-        "LIMIT 6 ")
+        "LIMIT 6", {type: QueryTypes.SELECT})
     const month = rentTimeByMonth.map((value) => {
-        console.log(value)
         return value.month_play.getMonth() + 1
     }).join(',')
     const specificTime = await sequelize.query("SELECT \n" +
@@ -56,25 +55,46 @@ async function rentTime(request, response) {
         "\tstatus_bayar = 'paid' AND" +
         `\tEXTRACT(MONTH from \"updatedAt\") IN (${month})\n` +
         "ORDER BY\n" +
-        "\tplay_month DESC")
+        "\tplay_month DESC", {type: QueryTypes.SELECT})
     const timeResult = []
-    for(let i = 0; i <= 24; i++) time.push(0)
+    for(let i = 0; i < 24; i++) timeResult.push(0)
     const obj = {}
     let monthResult = null;
     specificTime.forEach(value => {
         const month = getDateBasedFormat(value.play_month.getTime(), "MMM YYYY")
         if(monthResult === null || monthResult !== month) {
-            obj[monthResult] = timeResult
             monthResult = month
-            for(let i = 0; i <= 24; i++) timeResult[i] = 0
+            obj[monthResult] = timeResult
+            for(let i = 0; i < 24; i++) timeResult[i] = 0
         }
         const time = +value.booking_time.split(':')[0]
         const duration = value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity
         for(let i = time; i < time + duration; i++) {
-            timeResult[i]++;
+            timeResult[i-1]++;
         }
     })
-    return response.status(200).json(obj)
+    Object.keys(obj).map(value => {
+        obj[value] = obj[value].map((value, index) => {
+            if(value === 0) return undefined
+            return {
+                time: `${String(index+1).padStart(2, '0')}:00-${String(index+2).padStart(2, '0')}:00`,
+                total: value
+            }
+        }).filter(value => value !== undefined).sort((a, b) => a.total - b.total).reverse()
+    })
+    let dataResult;
+    rentTimeByMonth.forEach(value => {
+        dataResult = Object.keys(obj).map(key => {
+            return {
+                [key]: obj[key],
+                total_time_rent: +value.total
+            }
+        })
+    })
+    return response.status(200).json({
+        status: 200,
+        data: dataResult
+    })
 }
 
 module.exports = {income, rentTime}

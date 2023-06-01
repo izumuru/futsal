@@ -254,7 +254,7 @@ async function historyBooking(request, response) {
 async function detailBookingUser(request, response) {
     const {booking_id} = request.params
     const user = response.locals.user
-    const {dataValues: booking} = await Booking.findOne({
+    const booking = await Booking.findOne({
         where: {user_id: user.user_id, booking_id},
         include: {model: Fields, attributes: ['name'], include:  {model: Gallery}},
         attributes: [

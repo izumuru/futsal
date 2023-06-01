@@ -52,10 +52,12 @@ async function createMobileBooking(request, response) {
             expiredDate: createPayment.expiry_time ? createPayment.expiry_time : null,
             orderCode: orderCode
         })
-        await Booking.create(payload, {returning: true, transaction: t})
+        const booking = await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
             status: 200,
-            message: "Berhasil tambah booking"
+            data: {
+                booking_id: booking.booking_id
+            }
         })
         t.commit()
     } catch (error) {
@@ -317,9 +319,15 @@ async function midtransCallback(request, response) {
     let update
     if(transaction_status === "settlement") {
         update = {status_bayar: "paid", tanggal_pembayaran: new Date()}
-        await admin.messaging().sendToDevice(booking.User.fcm_token, {
-            title: "Pemesanan lapangan berhasil dibayar",
-            body: `Pemesanan ${booking.Field.name} pada tanggal ${getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm')} berhasil di booking`
+        admin.messaging().send( {
+            token: booking.User.fcm_token,
+            notification: {
+                title: "Pemesanan lapangan berhasil dibayar",
+                body: `Pemesanan ${booking.Field.name} pada tanggal ${getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm')} berhasil di booking`
+            },
+        }).then((result) => console.log(result))
+            .catch((err) => {
+            console.log(err)
         })
     } else if(['deny', 'cancel', 'expire'].includes(transaction_status)) {
         update = {status_bayar: "canceled"}

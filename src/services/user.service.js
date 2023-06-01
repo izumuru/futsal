@@ -236,6 +236,7 @@ async function historyBooking(request, response) {
         where: {user_id: user.user_id},
         include: {model: Fields, attributes: ['name']},
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity'],
+        order: [['createdAt', 'desc']],
         offset: page ? (page > 1 ? 5 * (page-1) : 0) : 0,
         limit: 5,
     })

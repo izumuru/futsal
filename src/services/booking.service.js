@@ -56,7 +56,8 @@ async function createMobileBooking(request, response) {
         response.status(200).json({
             status: 200,
             data: {
-                booking_id: booking.booking_id
+                booking_id: booking.booking_id,
+                payment_method_id: booking.payment_method_id
             }
         })
         t.commit()
@@ -147,6 +148,7 @@ async function payloadCreateBooking(validation, payload) {
         paymentId,
         paymentName,
         adminPrice,
+        paymentTypeName
     } = validation
     const data = {
         payment_method_id: paymentId,
@@ -161,7 +163,7 @@ async function payloadCreateBooking(validation, payload) {
         day_price_quantity: typePrice === "day" ? duration : null,
         night_price_quantity: typePrice === "night" ? duration : null,
         platform_booking: platform,
-        booking_payment_method_name: paymentName
+        booking_payment_method_name: paymentName === "Cash" ? paymentName : paymentTypeName + " " + paymentName
     }
     if (platform === "web") {
         data['tanggal_pembayaran'] = new Date()
@@ -249,6 +251,7 @@ async function getDetailBooking(request, response) {
         booking_date_time: getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         field_name: booking.Field.name,
         payment_method: booking.payment_method_name,
+        booking_payment_method_name: booking.booking_payment_method_name,
         tanggal_pembayaran: booking.tanggal_pembayaran !== null ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm') : null,
         verification_code: booking.booking_code,
         platform_booking: booking.platform_booking,

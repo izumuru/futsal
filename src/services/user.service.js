@@ -280,6 +280,7 @@ async function detailBookingUser(request, response) {
         tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm') : null,
         verification_code: booking.booking_code,
         status_bayar: booking.status_bayar,
+        virtual_account_code: booking.virtual_account_code,
     }
     if (booking.Field.Galleries.length > 0) {
         schema['image'] = process.env.APP_URL + '/' + booking.Field.Galleries.shift().image
@@ -310,12 +311,15 @@ async function bookingActive(request, response) {
         order: [['createdAt', 'DESC']],
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity']
     });
-    if (new Date().getTime() < addHourToDate(paid.dataValues.booking_date, parseInt(paid.dataValues.booking_time.split(':')[0]))) {
-        return response.status(200).json({
-            status: 200,
-            data: schemaBooking(paid.dataValues)
-        })
+    if(paid) {
+        if (new Date().getTime() < addHourToDate(paid.dataValues.booking_date, parseInt(paid.dataValues.booking_time.split(':')[0]))) {
+            return response.status(200).json({
+                status: 200,
+                data: schemaBooking(paid.dataValues)
+            })
+        }
     }
+
     return response.status(200).json({
         status: 200,
         data: null

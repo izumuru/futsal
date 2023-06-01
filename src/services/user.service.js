@@ -278,7 +278,7 @@ async function detailBookingUser(request, response) {
         booking_date_time: getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         field_name: booking.Field.name,
         payment_method: booking.payment_method_name,
-        tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm', true) : null,
+        tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm') : null,
         verification_code: booking.booking_code,
         status_bayar: booking.status_bayar,
         virtual_account_code: booking.virtual_account_code,

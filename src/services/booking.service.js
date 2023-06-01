@@ -318,7 +318,7 @@ async function midtransCallback(request, response) {
     const booking = await Booking.findOne({where: {virtual_account_code:code}, include: [{model: Fields, attributes: ['name']}, {model : User, attributes: ['fcm_token']}]})
     let update
     if(transaction_status === "settlement") {
-        update = {status_bayar: "paid", tanggal_pembayaran: new Date()}
+        update = {status_bayar: "paid", tanggal_pembayaran: moment().tz('Asia/Jakarta').format()}
         admin.messaging().send( {
             token: booking.User.fcm_token,
             notification: {

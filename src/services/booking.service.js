@@ -115,7 +115,7 @@ async function bookingValidation(request, platform) {
 
     let price = field.harga
     let typePrice = "day"
-    if (bookingTime.split(':')[0] >= +field.waktu_mulai_malam.split(':')[0]) {
+    if (+bookingTime.split(':')[0] >= +field.waktu_mulai_malam.split(':')[0]) {
         price = field.harga_malam
         typePrice = "night"
     }

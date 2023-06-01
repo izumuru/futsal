@@ -81,6 +81,12 @@ async function bookingValidation(request, platform) {
         status: 404,
         message: "Lapangan tidak ditemukan"
     }
+    if(new Date(bookingDate).getTime() < new Date().getTime()) {
+        return {
+            status: 400,
+            message: "Tanggal tidak valid"
+        }
+    }
     if(field.booking_close === bookingTime + ":00") {
         return {
             status: 400,
@@ -109,7 +115,7 @@ async function bookingValidation(request, platform) {
 
     let price = field.harga
     let typePrice = "day"
-    if (field.waktu_mulai_malam === bookingTime) {
+    if (field.waktu_mulai_malam === bookingTime + ":00") {
         price = field.harga_malam
         typePrice = "night"
     }

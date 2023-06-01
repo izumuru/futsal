@@ -8,6 +8,12 @@ module.exports = {
         port: process.env.DB_PORT,
         dialect: 'postgres',
         logging: false,
+        pool: {
+            max: 20,
+            min: 0,
+            acquire: 60000,
+            idle: 10000
+        }
     },
     test: {
         username: process.env.CI_DB_USERNAME,

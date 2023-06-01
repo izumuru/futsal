@@ -14,7 +14,7 @@ function addHourToDate(date, hour, incrementHour) {
 }
 
 function getDateBasedFormat(unixTime, format, keeplocal = false) {
-    return moment.unix(unixTime / 1000).utc(keeplocal).locale('id').format(format)
+    return moment.unix(unixTime / 1000).utc().local(keeplocal).locale('id').format(format)
 }
 
 module.exports = {getDate, addHourToDate, getDateBasedFormat}

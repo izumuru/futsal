@@ -44,6 +44,7 @@ async function rentTime(request, response) {
     const month = rentTimeByMonth.map((value) => {
         return value.month_play.getMonth() + 1
     }).join(',')
+    if(month.length === 0) return response.status(200).json({status: 200, data: []})
     const specificTime = await sequelize.query("SELECT \n" +
         "    booking_time,\n" +
         "\tday_price_quantity,\n" +

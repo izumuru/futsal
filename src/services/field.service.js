@@ -206,6 +206,7 @@ async function getField(request, response) {
         status: 200,
         data: fields.map(value => {
             const data = {
+                field_id: value.field_id,
                 name: value.name,
                 harga: value.harga,
                 harga_malam: value.harga_malam,

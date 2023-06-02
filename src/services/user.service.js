@@ -4,6 +4,7 @@ const {signToken} = require("../helpers/jwt");
 const {transporter, mailOptions} = require("../helpers/mail");
 const {uid} = require("uid");
 const moment = require("moment");
+const logger = require('../helpers/logger')
 const {getDateBasedFormat, addHourToDate} = require("../helpers/date");
 
 async function logout(request, response) {
@@ -131,6 +132,8 @@ async function getUserProfile(request, response) {
 
 async function updateUser(request, response) {
     try {
+        logger.log("info", "Request received : ", request.body)
+        logger.log("info", "Request File : ", request.file)
         const user = await User.findByPk(response.locals.user.user_id)
         const file = request.file
         const {name, no_hp, address} = request.body

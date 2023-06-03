@@ -348,6 +348,7 @@ const schemaBooking = (data) => {
         booking_date_time: getDateBasedFormat(addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         duration: data.day_price_quantity === null ? data.night_price_quantity : data.day_price_quantity,
         status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "expired" : "waiting") : data.status_bayar,
+        tanggal_batas_pembayaran: getDateBasedFormat((data.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
     }
 }

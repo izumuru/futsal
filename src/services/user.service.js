@@ -345,7 +345,7 @@ const schemaBooking = (data) => {
         name: data.Field.dataValues.name,
         booking_date_time: getDateBasedFormat(addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         duration: data.day_price_quantity === null ? data.night_price_quantity : data.day_price_quantity,
-        status_bayar: (data.status_bayar === 'waiting') ? (new Date().getMinutes() - data.createdAt.getTime() > 15 ? "expired" : "waiting") : data.status_bayar,
+        status_bayar: (data.status_bayar === 'waiting') ? (new Date().getMinutes() - data.createdAt.getMinutes() > 15 ? "expired" : "waiting") : data.status_bayar,
         created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
     }
 }

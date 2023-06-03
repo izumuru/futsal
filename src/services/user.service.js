@@ -265,7 +265,8 @@ async function detailBookingUser(request, response) {
             'day_price', 'night_price', 'total_price',
             'day_price_quantity', 'night_price_quantity', 'booking_date',
             'booking_time', 'status_bayar', 'platform_booking',
-            'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran','booking_code', 'virtual_account_code', 'payment_method_id'
+            'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran','booking_code', 'virtual_account_code', 'payment_method_id',
+            'createdAt'
         ]
     })
     if (!booking) return response.status(404).json({
@@ -283,7 +284,7 @@ async function detailBookingUser(request, response) {
         payment_method: booking.payment_method_name,
         tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm', true) : null,
         verification_code: booking.booking_code,
-        status_bayar: booking.status_bayar,
+        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getMinutes() - booking.createdAt.getTime() > 15 ? "expired" : "waiting") : booking.status_bayar,
         virtual_account_code: booking.virtual_account_code,
         payment_method_id: booking.payment_method_id
     }
@@ -304,7 +305,7 @@ async function bookingActive(request, response) {
         order: [['createdAt', 'DESC']],
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity']
     })
-    if (waiting) {
+    if (waiting && (new Date().getMinutes() - waiting.createdAt.getMinutes()) <= 15) {
         return response.status(200).json({
             status: 200,
             data: schemaBooking(waiting.dataValues)
@@ -344,8 +345,8 @@ const schemaBooking = (data) => {
         name: data.Field.dataValues.name,
         booking_date_time: getDateBasedFormat(addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         duration: data.day_price_quantity === null ? data.night_price_quantity : data.day_price_quantity,
-        status_bayar: data.status_bayar,
-        created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm')
+        status_bayar: (data.status_bayar === 'waiting') ? (new Date().getMinutes() - data.createdAt.getTime() > 15 ? "expired" : "waiting") : data.status_bayar,
+        created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
     }
 }
 

@@ -305,7 +305,7 @@ async function bookingActive(request, response) {
         order: [['createdAt', 'DESC']],
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity']
     })
-    if (waiting && new Date().getTime() < (data.createdAt.getTime() + (15 * 60 * 1000))) {
+    if (waiting && new Date().getTime() < (waiting.createdAt.getTime() + (15 * 60 * 1000))) {
         return response.status(200).json({
             status: 200,
             data: schemaBooking(waiting.dataValues)

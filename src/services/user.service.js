@@ -284,7 +284,7 @@ async function detailBookingUser(request, response) {
         payment_method: booking.payment_method_name,
         tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm', true) : null,
         verification_code: booking.booking_code,
-        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getMinutes() - booking.createdAt.getTime() > 15 ? "expired" : "waiting") : booking.status_bayar,
+        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "expired" : "waiting") : booking.status_bayar,
         virtual_account_code: booking.virtual_account_code,
         payment_method_id: booking.payment_method_id
     }

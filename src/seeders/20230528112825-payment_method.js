@@ -7,7 +7,7 @@ module.exports = {
             {
                 payment_method_id: 1,
                 payment_types_id: 1,
-                logo: 'bca.jpg',
+                logo: 'bca.png',
                 payment_method_name: "BCA",
                 payment_admin_nominal: 4000,
                 platform_payment_method: "mobile",
@@ -17,7 +17,7 @@ module.exports = {
             {
                 payment_method_id: 2,
                 payment_types_id: 1,
-                logo: 'bri.jpg',
+                logo: 'bri.png',
                 payment_method_name: "BRI",
                 payment_admin_nominal: 4000,
                 platform_payment_method: "mobile",
@@ -27,7 +27,7 @@ module.exports = {
             {
                 payment_method_id: 4,
                 payment_types_id: 1,
-                logo: 'Bni.jpg',
+                logo: 'bni.png',
                 payment_method_name: "BNI",
                 payment_admin_nominal: 4000,
                 platform_payment_method: "mobile",
@@ -37,7 +37,7 @@ module.exports = {
             {
                 payment_method_id: 5,
                 payment_types_id: 2,
-                logo: 'alfamart.jpg',
+                logo: 'alfamart.png',
                 payment_method_name: "Alfamart",
                 payment_admin_nominal: 5000,
                 platform_payment_method: "mobile",

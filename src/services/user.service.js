@@ -285,7 +285,7 @@ async function detailBookingUser(request, response) {
         tanggal_pembayaran: booking.tanggal_pembayaran ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm', true) : null,
         tanggal_batas_pembayaran: getDateBasedFormat((booking.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         verification_code: booking.booking_code,
-        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "expired" : "waiting") : booking.status_bayar,
+        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : booking.status_bayar,
         virtual_account_code: booking.virtual_account_code,
         payment_method_id: booking.payment_method_id,
         created_at: getDateBasedFormat(booking.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
@@ -347,7 +347,7 @@ const schemaBooking = (data) => {
         name: data.Field.dataValues.name,
         booking_date_time: getDateBasedFormat(addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         duration: data.day_price_quantity === null ? data.night_price_quantity : data.day_price_quantity,
-        status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "expired" : "waiting") : data.status_bayar,
+        status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : data.status_bayar,
         tanggal_batas_pembayaran: getDateBasedFormat((data.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
     }

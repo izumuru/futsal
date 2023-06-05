@@ -84,7 +84,7 @@ async function bookingValidation(request, platform) {
         status: 404,
         message: "Lapangan tidak ditemukan"
     }
-    if(new Date(bookingDate).getTime() < new Date().getTime()) {
+    if(new Date(bookingDate).getTime() < moment(new Date().getTime()).tz('Asia/Jakarta').unix()) {
         return {
             status: 400,
             message: "Tanggal tidak valid"

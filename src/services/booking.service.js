@@ -6,12 +6,13 @@ const moment = require("moment/moment");
 const axios = require("axios");
 const {response} = require("express");
 const {admin} = require("../helpers/firebase");
+const ClientError = require("../helpers/client_error");
 async function createWebBooking(request, response) {
     const t = await sequelize.transaction()
     try {
         const user = response.locals.user
         const validation = await bookingValidation(request, "web")
-        if(validation.status) return response.status(validation.status).json(validation)
+        if(validation.status) throw new ClientError(JSON.stringify(validation), validation.status)
         const orderCode = uid(6).toUpperCase()
         const payload = await payloadCreateBooking(validation, {userId: user.user_id, platform: "web", orderCode: orderCode})
         await Booking.create(payload, {returning: true, transaction: t})
@@ -23,6 +24,9 @@ async function createWebBooking(request, response) {
     } catch (error) {
         t.rollback()
         console.log(error)
+        if(error instanceof ClientError) {
+            return response.status(error.statusCode).json(JSON.parse(error.message))
+        }
         response.status(500).json({
             status: 500,
             message: "Internal server error"
@@ -35,7 +39,7 @@ async function createMobileBooking(request, response) {
     try {
         const user = response.locals.user
         const validation = await bookingValidation(request, "mobile")
-        if(validation.status) return response.status(validation.status).json(validation)
+        if(validation.status) throw new ClientError(JSON.stringify(validation), validation.status)
         const orderCode = uid(6).toUpperCase()
         const createPayment = await createMidtransPayment({
             type: validation.paymentTypeName,
@@ -64,6 +68,9 @@ async function createMobileBooking(request, response) {
     } catch (error) {
         t.rollback()
         console.log(error)
+        if(error instanceof ClientError) {
+            return response.status(error.statusCode).json(JSON.parse(error.message))
+        }
         response.status(500).json({
             status: 500,
             message: "Internal server error"

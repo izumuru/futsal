@@ -2,6 +2,7 @@ const {Fields, Gallery, DaysActive, Days} = require('../models')
 const {sequelize} = require('../models/index')
 const path = require("path");
 const fs = require('fs')
+const ClientError = require("../helpers/client_error");
 
 async function addField(request, response) {
     const t = await sequelize.transaction();
@@ -17,10 +18,10 @@ async function addField(request, response) {
             daysActive: days
         } = request.body
         if (request.files.length === 0) {
-            return response.status(400).json({
+            throw new ClientError(JSON.stringify({
                 status: 400,
                 message: "Wajib memiliki 1 gambar lapangan"
-            })
+            }), 400)
         }
         const field = await Fields.create({
             name,
@@ -53,6 +54,9 @@ async function addField(request, response) {
     } catch (e) {
         t.rollback()
         console.log(e)
+        if(e instanceof ClientError) {
+            return response.status(e.statusCode).json(JSON.parse(e.message))
+        }
         response
             .status(500)
             .json({
@@ -77,10 +81,10 @@ async function updateField(request, response) {
             daysActive: days
         } = request.body
         const field = await Fields.findOne({where: {field_id: id}})
-        if (!field) return response.json(404).json({
+        if (!field) throw new ClientError({
             status: 404,
             message: "Lapangan tidak ditemukan"
-        })
+        }, 404)
         const deletedDays = []
         const addDays = []
         for(const value of days) {
@@ -109,6 +113,9 @@ async function updateField(request, response) {
     } catch (e) {
         t.rollback()
         console.log(e)
+        if(e instanceof ClientError) {
+            return response.status(e.statusCode).json(JSON.parse(e.message))
+        }
         response
             .status(500)
             .json({

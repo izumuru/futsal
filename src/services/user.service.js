@@ -288,6 +288,7 @@ async function detailBookingUser(request, response) {
         status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : booking.status_bayar,
         virtual_account_code: booking.virtual_account_code,
         payment_method_id: booking.payment_method_id,
+        booking_payment_method_name: booking.booking_payment_method_name,
         created_at: getDateBasedFormat(booking.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
     }
     if (booking.Field.Galleries.length > 0) {

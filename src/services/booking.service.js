@@ -165,8 +165,8 @@ async function payloadCreateBooking(validation, payload) {
         booking_time: bookingTime,
         total_price: (duration * price) + adminPrice,
         booking_code: orderCode,
-        day_price: typePrice === "day" ? price * duration : null,
-        night_price: typePrice === "night" ? price * duration : null,
+        day_price: typePrice === "day" ? price : null,
+        night_price: typePrice === "night" ? price : null,
         day_price_quantity: typePrice === "day" ? duration : null,
         night_price_quantity: typePrice === "night" ? duration : null,
         platform_booking: platform,
@@ -250,12 +250,14 @@ async function getDetailBooking(request, response) {
         message: "Booking tidak ditemukan"
     })
     const schema = {
-        night_price: booking.night_price !== null ? booking.night_price : undefined,
-        day_price: booking.day_price !== null ? booking.day_price : undefined,
+        night_price: booking.night_price,
+        day_price: booking.day_price,
         total_price: booking.total_price,
         admin_price: booking.admin_price === null ? undefined : booking.admin_price,
         duration: booking.day_price_quantity === null ? booking.night_price_quantity : booking.day_price_quantity,
         booking_date_time: getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
+        day_price_quantity: booking.day_price_quantity,
+        night_price_quantity: booking.night_price_quantity,
         field_name: booking.Field.name,
         payment_method: booking.payment_method_name,
         booking_payment_method_name: booking.booking_payment_method_name,

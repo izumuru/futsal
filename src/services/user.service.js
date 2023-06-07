@@ -274,11 +274,13 @@ async function detailBookingUser(request, response) {
         message: "Booking tidak ditemukan"
     })
     const schema = {
-        night_price: booking.night_price ? booking.night_price : undefined,
-        day_price: booking.day_price ? booking.day_price : undefined,
+        night_price: booking.night_price,
+        day_price: booking.day_price,
         total_price: booking.total_price,
         admin_price: !booking.admin_price ? undefined : booking.admin_price,
         duration: !booking.day_price_quantity ? booking.night_price_quantity : booking.day_price_quantity,
+        day_price_quantity: booking.day_price_quantity,
+        night_price_quantity: booking.night_price_quantity,
         booking_date_time: getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         field_name: booking.Field.name,
         payment_method: booking.payment_method_name,

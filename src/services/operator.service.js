@@ -64,7 +64,8 @@ async function detailOperator(request, response) {
             username: operator.username,
             is_aktif: operator.isaktif,
             no_hp: operator.no_hp,
-            address: operator.address,
+            alamat: operator.alamat,
+            email: operator.email,
             thumbnail: process.env.APP_URL + '/' + operator.thumbnail,
             ktp: process.env.APP_URL + '/' + operator.ktp,
             gender: operator.gender
@@ -79,6 +80,10 @@ async function setOperatorStatus(request, response) {
         message: "Operator tidak ditemukan"
     })
     operator.update({isaktif: !operator.isaktif})
+    return response.status(200).json({
+        status: 200,
+        message: "Berhasil update status operator"
+    })
 }
 
 

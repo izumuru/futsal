@@ -31,7 +31,7 @@ async function addOperator(request, response) {
             password: hashedPassword,
             type: 'operator',
             isaktif: true,
-            address,
+            alamat: address,
             thumbnail: thumbnail[0].filename,
             ktp: ktp[0].filename,
             gender
@@ -100,7 +100,7 @@ async function updateOperator(request, response) {
             name,
             no_hp,
             gender,
-            address,
+            alamat: address,
         }
         if(request.files.length !== 0) {
             if(thumbnail) {

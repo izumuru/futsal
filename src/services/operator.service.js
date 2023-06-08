@@ -166,6 +166,7 @@ async function getOperator(request, response) {
             status: 200,
             data: operators.map(value => {
                 return {
+                    user_id: value.user_id,
                     name: value.name,
                     username: value.username,
                     no_hp: value.no_hp,

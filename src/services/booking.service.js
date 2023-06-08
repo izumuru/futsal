@@ -352,7 +352,7 @@ async function getListUnavailableTimeField(id, date) {
     const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
     const data = []
     for(const value of bookings) {
-        if(value.status_bayar === "paid" || value.status_bayar == "waiting") {
+        if(value.status_bayar === "paid" || (value.status_bayar === "waiting" &&  new Date().getTime < (value.createdAt.getTime() + (15 * 60 * 1000)))) {
             const time = value.booking_time.split(':')
             const duration = value.day_price_quantity !== null ? value.day_price_quantity : value.night_price_quantity;
             const date = value.booking_date.getTime()

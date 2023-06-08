@@ -352,12 +352,12 @@ async function getListUnavailableTimeField(id, date) {
     const bookings = await Booking.findAll({where: {field_id: id, booking_date: date}});
     const data = []
     for(const value of bookings) {
-        if(value.status_bayar === "paid" || (value.status_bayar === "waiting" &&  new Date().getTime < (value.createdAt.getTime() + (15 * 60 * 1000)))) {
+        if(value.status_bayar === "paid" || (value.status_bayar === "waiting" &&  new Date().getTime() < (value.createdAt.getTime() + (15 * 60 * 1000)))) {
             const time = value.booking_time.split(':')
             const duration = value.day_price_quantity !== null ? value.day_price_quantity : value.night_price_quantity;
             const date = value.booking_date.getTime()
             const hour = parseInt(time[0])
-            data.push([date + (hour * 60 * 60 * 1000), date + ((hour + duration) * 60 * 60 * 1000)])
+            data.push([(date + (hour * 60 * 60 * 1000)), (date + ((hour + duration) * 60 * 60 * 1000))])
         }
     }
     return data
@@ -387,7 +387,6 @@ function availableTime(field, date, list) {
     const available = {}
     for (let i = open; i < close; i++) {
         const dateTime = addHourToDate(dateConvert, i)
-        console.log(dateTime)
         const key = `${getDateBasedFormat(dateTime, 'HH:mm')}-${getDateBasedFormat(addHourToDate(dateConvert, i, 1), 'HH:mm')}`
         available[key] = true
         for (const elm of list) {

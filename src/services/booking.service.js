@@ -409,7 +409,6 @@ async function createMidtransPayment(payload) {
                 Authorization: `Basic ${process.env.MIDTRANS_AUTH}`
             }
         })
-        console.log(data)
         return data;
     } catch (e) {
         console.log(e)

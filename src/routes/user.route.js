@@ -24,7 +24,8 @@ const bodyUpdateOperator = Joi.object({
     name: Joi.string().required(),
     no_hp: Joi.string().pattern(new RegExp(/^\d+$/)).min(10).max(13),
     address: Joi.string().required(),
-    gender: Joi.string().valid('LK','PR').required()
+    gender: Joi.string().valid('LK','PR').required(),
+    email: Joi.string().email().required()
 })
 
 const queryOperators = Joi.object({

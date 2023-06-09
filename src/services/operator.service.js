@@ -91,15 +91,22 @@ async function updateOperator(request, response) {
     try {
         const operator = await getOperatorById(request.params.id)
         const {thumbnail, ktp} = request.files
-        const {name, no_hp, address, gender} = request.body
+        const {name, no_hp, address, gender, email} = request.body
+        const user = await User.findOne({where: {email}})
         if (!operator) return response.status(404).json({
             status: 404,
             message: "Operator tidak ditemukan"
+        })
+        console.log(user, request.params.id, operator.user_id)
+        if(user && user.user_id !== operator.user_id) return response.status(400).json({
+            status: 400,
+            message: 'Email sudah terdaftar'
         })
         const updatedData = {
             name,
             no_hp,
             gender,
+            email,
             alamat: address,
         }
         if(request.files.length !== 0) {
@@ -145,7 +152,6 @@ async function getOperator(request, response) {
         ]
     })
     if(request.query.type === 'active') {
-        console.log(operators)
         return response.status(200).json({
             status: 200,
             data: operators.map(value => {

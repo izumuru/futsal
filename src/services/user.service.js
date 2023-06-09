@@ -11,7 +11,6 @@ async function logout(request, response) {
     const user = response.locals.user
     const {token} = request.headers
     const auth = await Auth.findOne({where: {user_id: user.user_id, token}})
-    console.log(auth.token)
     await auth.update({is_valid: false})
     return response.status(200).json({
         status: 200,
@@ -22,7 +21,6 @@ async function login(request, response) {
     try {
         const {email, password, fcm_token} = request.body
         const user = await User.findOne({where: {email: email}})
-        console.log(user)
         if (!user) return response.status(400).json({
             status: 400,
             message: "Email atau Password salah"

@@ -6,7 +6,7 @@ const multerWithErrorHandling = (userFunction, req, res, next) => {
             console.log(err)
             res.status(400).json({
                 status: 400,
-                message: 'Upload gambar gagal'
+                message: err.code === 'LIMIT_FILE_SIZE' ? 'Gambar terlalu besar' : 'Upload gambar gagal',
             })
         } else if(err) {
             console.log(err)

@@ -3,6 +3,7 @@ const {sequelize} = require('../models/index')
 const path = require("path");
 const fs = require('fs')
 const ClientError = require("../helpers/client_error");
+const {where} = require("sequelize");
 
 async function addField(request, response) {
     const t = await sequelize.transaction();
@@ -151,6 +152,41 @@ async function updateFieldImage(request, response) {
     }
 }
 
+async function addImage(request, response) {
+    try {
+        const {field_id: id} = request.params
+        const fieldExist = await Fields.findByPk(id)
+        if(!fieldExist) return response.status(404).json({
+            status: 404,
+            message: 'Lapangan tidak ditemukan'
+        })
+        const {count} = await Gallery.findAndCountAll({where: {field_id: id}});
+        if(count >= 5) {
+            return response.status(400).json({
+                status: 400,
+                message: 'Gambar sudah penuh'
+            })
+        }
+        const galleries = request.files.map(value => {
+            return {
+                field_id: id,
+                image: value.filename
+            }
+        })
+        await Gallery.bulkCreate(galleries, {returning: false})
+        return response.status(200).json({
+            status: 200,
+            message: 'Berhasil tambah gambar lapangan'
+        })
+    } catch (e) {
+        console.log(e)
+        return response.status(500).json({
+            status: 500,
+            message: 'Internal server error'
+        })
+    }
+}
+
 async function deleteImage(request, response) {
     try {
         const {id, field_id} = request.params
@@ -237,4 +273,4 @@ async function getDays(request, response) {
     })
 }
 
-module.exports = {addField, deleteImage, updateFieldImage, updateField, detailField, getField, getDays}
+module.exports = {addField, deleteImage, updateFieldImage, updateField, detailField, getField, getDays, addImage}

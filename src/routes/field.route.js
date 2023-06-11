@@ -6,7 +6,7 @@ const multer = require('multer')
 const storage = require("../helpers/file_upload");
 const { validator} = require('./index')
 const adminAuthorization = require('../middleware/admin.authorization')
-const { addField, updateFieldImage, deleteImage, updateField, detailField, getField, getDays} = require("../services/field.service");
+const { addField, updateFieldImage, deleteImage, updateField, detailField, getField, getDays, addImage} = require("../services/field.service");
 const {multerWithErrorHandling} = require("../helpers/erorr_handling");
 
 const router = express.Router()
@@ -52,6 +52,9 @@ router.post('/', (req, res, next) => {
 }, validator.body(bodyAddField), addField)
 
 router.put('/:id', validator.params(paramsValidation), validator.body(bodyUpdateField), updateField)
+router.post('/:field_id', (req, res, next) => {
+    multerWithErrorHandling(uploadImage, req, res, next)
+}, addImage)
 router.patch('/:field_id/gallery/:id', validator.params(paramsValidationImage),(req, res, next) => {
     multerWithErrorHandling(singleUploadImage, req, res, next)
 }, updateFieldImage)

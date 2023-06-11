@@ -1,4 +1,4 @@
-const {Fields, Booking, PaymentMethod, User, PaymentType} = require('../models')
+const {Fields, Booking, PaymentMethod, User, PaymentType, Gallery} = require('../models')
 const {sequelize} = require('../models/index')
 const {uid} = require('uid')
 const {getDate, getDateBasedFormat, addHourToDate} = require('../helpers/date')

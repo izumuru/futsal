@@ -293,6 +293,7 @@ async function getListBooking(request, response) {
         status: 200,
         data: bookings.map((value) => {
             return {
+                booking_id: value.booking_id,
                 user_name: value.User.name,
                 field_name: value.Field.name,
                 booking_date: getDateBasedFormat(addHourToDate(value.booking_date, parseInt(value.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),

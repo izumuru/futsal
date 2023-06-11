@@ -1,4 +1,4 @@
-const {Fields, Booking, PaymentMethod, User, PaymentType, Gallery} = require('../models')
+const {Fields, Booking, PaymentMethod, User, PaymentType} = require('../models')
 const {sequelize} = require('../models/index')
 const {uid} = require('uid')
 const {getDate, getDateBasedFormat, addHourToDate} = require('../helpers/date')
@@ -233,10 +233,6 @@ async function getDetailBooking(request, response) {
                 model: Fields,
                 attributes: ['name']
             },
-            {
-                model: Gallery,
-                attributes: []
-            }
         ],
         attributes: [
             'day_price', 'night_price', 'total_price',

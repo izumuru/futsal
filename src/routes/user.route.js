@@ -28,6 +28,13 @@ const bodyUpdateOperator = Joi.object({
     email: Joi.string().email().required()
 })
 
+const bodyUpdateUser = Joi.object({
+    name: Joi.string().required(),
+    no_hp: Joi.string().pattern(new RegExp(/^\d+$/)).min(10).max(13),
+    address: Joi.string().required(),
+    gender: Joi.string().valid('LK','PR').required(),
+})
+
 const queryOperators = Joi.object({
     type: Joi.string().valid('active', 'not-active').required()
 })
@@ -42,7 +49,7 @@ const uploadThumbnail = storage.single('thumbnail')
 router.get('/profile', getUserProfile)
 router.put('/', (req, res, next) => {
     multerWithErrorHandling(uploadThumbnail, req, res, next)
-}, validator.body(bodyUpdateOperator), updateUser);
+}, validator.body(bodyUpdateUser), updateUser);
 router.get('/bookings', historyBooking)
 router.get('/bookings/active', bookingActive)
 router.get('/bookings/detail/:booking_id', validator.params(paramBooking), detailBookingUser)

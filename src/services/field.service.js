@@ -173,6 +173,10 @@ async function addImage(request, response) {
                 image: value.filename
             }
         })
+        let deletedImage = count + galleries.length - 5
+        while(deletedImage--) {
+            galleries.pop()
+        }
         await Gallery.bulkCreate(galleries, {returning: false})
         return response.status(200).json({
             status: 200,

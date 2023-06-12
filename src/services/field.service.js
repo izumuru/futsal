@@ -248,7 +248,7 @@ async function detailField(request, response) {
 }
 
 async function getField(request, response) {
-    const fields = await Fields.findAll({include: [{model: Gallery}, {model: DaysActive, include: Days}]})
+    const fields = await Fields.findAll({include: [{model: Gallery, order: ['gallery_id', 'ASC']}, {model: DaysActive, include: Days}]})
     return response.status(200).json({
         status: 200,
         data: fields.map(value => {

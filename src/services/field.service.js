@@ -258,7 +258,7 @@ async function getField(request, response) {
                 days_active: value.DaysActives.map(value => value.Day.day_name).join(', '),
             }
             if (value.Galleries.length > 0) {
-                data['image'] = process.env.APP_URL + '/' + value.Galleries[0].image
+                data['image'] = process.env.APP_URL + '/' + value.Galleries.shift().image
             }
             return data
         })

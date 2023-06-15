@@ -314,19 +314,22 @@ async function bookingActive(request, response) {
             data: schemaBooking(waiting.dataValues)
         })
     }
-    const paid = await Booking.findOne({
+    const paid = await Booking.findAll({
         where: {user_id: user.user_id, status_bayar: "paid"},
         include: {model: Fields, attributes: ['name']},
         order: [['createdAt', 'DESC']],
-        attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity']
+        attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity'],
+        limit: 5
     });
     if(paid) {
-        if (new Date().getTime() < addHourToDate(paid.dataValues.booking_date, parseInt(paid.dataValues.booking_time.split(':')[0]))) {
-            return response.status(200).json({
-                status: 200,
-                data: schemaBooking(paid.dataValues)
-            })
-        }
+        const data = paid.filter((value) => {
+            const currentDate = new Date()
+            return new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_Date) && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0]));
+        })
+        return response.status(200).json({
+            status: 200,
+            data: data.length ? data.pop() : null
+        })
     }
 
     return response.status(200).json({

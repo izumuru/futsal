@@ -324,14 +324,12 @@ async function bookingActive(request, response) {
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()
-            logger.log('info', currentDate)
-            logger.log('info', `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`)
-            logger.log("info", moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`, 'YYYY-MM-DD'))
+            logger.log("info", moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix())
             logger.log("info", new Date(value.booking_date).getTime() / 1000)
             logger.log("info", new moment(new Date().getTime()).tz('Asia/Jakarta').unix())
             logger.log("info", addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000)
-            logger.log("info", (new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime()/1000) < (new Date(value.booking_date).getTime()/1000) && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000))
-            return (moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`, 'YYYY-MM-DD').unix()) < (new Date(value.booking_date).getTime()/1000) && moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000);
+            logger.log("info", (new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`).getTime()/1000) < (new Date(value.booking_date).getTime()/1000) && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000))
+            return (moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix()) < (new Date(value.booking_date).getTime()/1000) && moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000);
         })
         logger.log('info', 'data', data)
         return response.status(200).json({

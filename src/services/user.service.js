@@ -328,7 +328,7 @@ async function bookingActive(request, response) {
         })
         const dataSorted = data.map(value => {
             return schemaBooking(value);
-        }).sort((a, b) => {a.booking_date_time_unix - b.booking_date_time_unix})
+        }).sort((a, b) => a.booking_date_time_unix - b.booking_date_time_unix)
         logger.log('info', 'data', dataSorted)
         return response.status(200).json({
             status: 200,

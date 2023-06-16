@@ -324,7 +324,7 @@ async function bookingActive(request, response) {
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()
-            logger.log("info", "condition", new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])))
+            logger.log("info", new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])))
             return new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0]));
         })
         logger.log('info', 'data', data)

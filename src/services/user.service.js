@@ -324,6 +324,7 @@ async function bookingActive(request, response) {
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()
+            logger.log('info', currentDate)
             logger.log('info', `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`)
             logger.log("info", moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`, 'YYYY-MM-DD'))
             logger.log("info", new Date(value.booking_date).getTime() / 1000)

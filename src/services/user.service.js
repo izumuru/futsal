@@ -332,7 +332,7 @@ async function bookingActive(request, response) {
         logger.log('info', 'data', dataSorted)
         return response.status(200).json({
             status: 200,
-            data: data.length ? data[0] : null
+            data: data.length ? dataSorted[0] : null
         })
     }
 

@@ -324,17 +324,15 @@ async function bookingActive(request, response) {
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()
-            logger.log("info", moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix())
-            logger.log("info", new Date(value.booking_date).getTime() / 1000)
-            logger.log("info", new moment(new Date().getTime()).tz('Asia/Jakarta').unix())
-            logger.log("info", addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000)
-            logger.log("info", (new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`).getTime()/1000) < (new Date(value.booking_date).getTime()/1000) && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000))
             return (moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix()) < (new Date(value.booking_date).getTime()/1000) && moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000);
         })
-        logger.log('info', 'data', data)
+        const dataSorted = data.map(value => {
+            return schemaBooking(data);
+        }).sort((a, b) => {a.booking_date_time_unix - b.booking_date_time_unix})
+        logger.log('info', 'data', dataSorted)
         return response.status(200).json({
             status: 200,
-            data: data.length ? schemaBooking(data.pop()) : null
+            data: data.length ? data[0] : null
         })
     }
 
@@ -359,7 +357,8 @@ const schemaBooking = (data) => {
         duration: data.day_price_quantity === null ? data.night_price_quantity : data.day_price_quantity,
         status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : data.status_bayar,
         tanggal_batas_pembayaran: getDateBasedFormat((data.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
-        created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true)
+        created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
+        booking_date_time_unix: addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0]))
     }
 }
 

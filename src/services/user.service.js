@@ -358,7 +358,7 @@ const schemaBooking = (data) => {
         status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : data.status_bayar,
         tanggal_batas_pembayaran: getDateBasedFormat((data.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
-        booking_date_time_unix: addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0]))
+        booking_date_time_unix: addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])) / 1000
     }
 }
 

@@ -328,7 +328,7 @@ async function bookingActive(request, response) {
         })
         return response.status(200).json({
             status: 200,
-            data: data.length ? data.pop() : null
+            data: data.length ? schemaBooking(data.pop()) : null
         })
     }
 

@@ -327,7 +327,7 @@ async function bookingActive(request, response) {
             return (moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix()) < (new Date(value.booking_date).getTime()/1000) && moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000);
         })
         const dataSorted = data.map(value => {
-            return schemaBooking(data);
+            return schemaBooking(value);
         }).sort((a, b) => {a.booking_date_time_unix - b.booking_date_time_unix})
         logger.log('info', 'data', dataSorted)
         return response.status(200).json({

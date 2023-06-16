@@ -324,10 +324,10 @@ async function bookingActive(request, response) {
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()
-            console.log(new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])))
+            logger.log("info", "condition", new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])))
             return new Date(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}`).getTime() < new Date(value.booking_date).getTime() && new moment(new Date().getTime()).tz('Asia/Jakarta').unix() < addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0]));
         })
-        console.log(data)
+        logger.log('info', 'data', data)
         return response.status(200).json({
             status: 200,
             data: data.length ? schemaBooking(data.pop()) : null

@@ -213,7 +213,7 @@ async function getBookingGroupByField(request, response) {
             name: value.name,
             bookings: value.Bookings.map(value => {
                 const time = parseInt(value.booking_time.split(':')[0])
-                const duration = value.day_price_quantity + value.night_price_quantity,
+                const duration = value.day_price_quantity + value.night_price_quantity
                 const bookingTime = `${getDateBasedFormat(addHourToDate(date, time), 'HH:mm')}-${getDateBasedFormat(addHourToDate(date, time, duration), 'HH:mm')}`
                 return {
                     booking_id: value.booking_id,

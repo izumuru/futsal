@@ -46,7 +46,7 @@ async function createMobileBooking(request, response) {
             orderId: orderCode,
             bank: validation.paymentName,
             user: user,
-            amount: (validation.price * validation.duration) + validation.adminPrice
+            amount: (validation.day_price * validation.duration) + (validation.night_price + validation.duration_night) + validation.adminPrice
         })
         if (createPayment.status_code !== '201') throw new Error(createPayment.status_message)
         const payload = await payloadCreateBooking(validation, {
@@ -123,18 +123,26 @@ async function bookingValidation(request, platform) {
         message: "Metode Pembayaran tidak ditemukan"
     }
 
-    let price = field.harga
-    let typePrice = "day"
+    let day_price = 0
+    let night_price = 0
+    let duration_night = 0
     if (+bookingTime.split(':')[0] >= +field.waktu_mulai_malam.split(':')[0]) {
-        price = field.harga_malam
-        typePrice = "night"
+        night_price = field.harga_malam
+    } else {
+        day_price = field.harga
+    }
+    if(duration === 2 && ((+bookingTime.split(':')[0]) + 1 >= +field.waktu_mulai_malam.split(':')[0])) {
+        night_price = field.harga_malam
+        duration_night = 1
+        duration -= 1
     }
     return {
-        price,
-        typePrice,
+        day_price,
+        night_price,
         bookingDate,
         bookingTime,
         duration,
+        duration_night,
         fieldId: field.field_id,
         paymentId: paymentMethod.dataValues.payment_method_id,
         paymentName: paymentMethod.dataValues.payment_method_name,
@@ -146,11 +154,12 @@ async function bookingValidation(request, platform) {
 async function payloadCreateBooking(validation, payload) {
     const {userId, platform, code, expiredDate, orderCode} = payload
     const {
-        price,
-        typePrice,
+        day_price,
+        night_price,
         bookingDate,
         bookingTime,
         duration,
+        duration_night,
         fieldId,
         paymentId,
         paymentName,
@@ -163,12 +172,12 @@ async function payloadCreateBooking(validation, payload) {
         user_id: userId,
         booking_date: bookingDate,
         booking_time: bookingTime,
-        total_price: (duration * price) + adminPrice,
+        total_price: (duration * day_price) + (duration_night * night_price) + adminPrice,
         booking_code: orderCode,
-        day_price: typePrice === "day" ? price : null,
-        night_price: typePrice === "night" ? price : null,
-        day_price_quantity: typePrice === "day" ? duration : null,
-        night_price_quantity: typePrice === "night" ? duration : null,
+        day_price: day_price,
+        night_price: night_price,
+        day_price_quantity: duration,
+        night_price_quantity: duration_night,
         platform_booking: platform,
         booking_payment_method_name: paymentName === "Cash" ? paymentName : paymentTypeName + " " + paymentName
     }
@@ -204,7 +213,7 @@ async function getBookingGroupByField(request, response) {
             name: value.name,
             bookings: value.Bookings.map(value => {
                 const time = parseInt(value.booking_time.split(':')[0])
-                const duration = value.day_price_quantity === null ? value.night_price_quantity : value.day_price_quantity
+                const duration = value.day_price_quantity + value.night_price_quantity,
                 const bookingTime = `${getDateBasedFormat(addHourToDate(date, time), 'HH:mm')}-${getDateBasedFormat(addHourToDate(date, time, duration), 'HH:mm')}`
                 return {
                     booking_id: value.booking_id,
@@ -251,7 +260,7 @@ async function getDetailBooking(request, response) {
         day_price: booking.day_price,
         total_price: booking.total_price,
         admin_price: booking.admin_price === null ? undefined : booking.admin_price,
-        duration: booking.day_price_quantity === null ? booking.night_price_quantity : booking.day_price_quantity,
+        duration: booking.day_price_quantity + booking.night_price_quantity,
         booking_date_time: getDateBasedFormat(addHourToDate(booking.booking_date, parseInt(booking.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
         day_price_quantity: booking.day_price_quantity,
         night_price_quantity: booking.night_price_quantity,
@@ -354,7 +363,7 @@ async function getListUnavailableTimeField(id, date) {
     for(const value of bookings) {
         if(value.status_bayar === "paid" || (value.status_bayar === "waiting" &&  new Date().getTime() < (value.createdAt.getTime() + (15 * 60 * 1000)))) {
             const time = value.booking_time.split(':')
-            const duration = value.day_price_quantity !== null ? value.day_price_quantity : value.night_price_quantity;
+            const duration = value.day_price_quantity + value.night_price_quantity;
             const date = value.booking_date.getTime()
             const hour = parseInt(time[0])
             data.push([(date + (hour * 60 * 60 * 1000)), (date + ((hour + duration) * 60 * 60 * 1000))])

@@ -126,6 +126,7 @@ async function bookingValidation(request, platform) {
     let day_price = 0
     let night_price = 0
     let duration_night = 0
+    let new_duration = duration
     if (+bookingTime.split(':')[0] >= +field.waktu_mulai_malam.split(':')[0]) {
         night_price = field.harga_malam
     } else {
@@ -134,14 +135,14 @@ async function bookingValidation(request, platform) {
     if(duration === 2 && ((+bookingTime.split(':')[0]) + 1 >= +field.waktu_mulai_malam.split(':')[0])) {
         night_price = field.harga_malam
         duration_night = 1
-        duration -= 1
+        new_duration -= 1
     }
     return {
         day_price,
         night_price,
         bookingDate,
         bookingTime,
-        duration,
+        duration: new_duration,
         duration_night,
         fieldId: field.field_id,
         paymentId: paymentMethod.dataValues.payment_method_id,

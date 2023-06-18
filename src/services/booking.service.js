@@ -132,7 +132,7 @@ async function bookingValidation(request, platform) {
     } else {
         day_price = field.harga
     }
-    if(duration === 2 && ((+bookingTime.split(':')[0]) + 1 >= +field.waktu_mulai_malam.split(':')[0])) {
+    if(duration === 2 && ((+bookingTime.split(':')[0]) + 1 == +field.waktu_mulai_malam.split(':')[0])) {
         night_price = field.harga_malam
         duration_night = 1
         new_duration -= 1

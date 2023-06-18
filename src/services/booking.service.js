@@ -173,6 +173,7 @@ async function payloadCreateBooking(validation, payload) {
         adminPrice,
         paymentTypeName
     } = validation
+    console.log(duration, day_price, duration_night, night_price, adminPrice)
     const data = {
         payment_method_id: paymentId,
         field_id: fieldId,

@@ -103,6 +103,12 @@ async function bookingValidation(request, platform) {
             message: "Lapangan sudah tutup"
         }
     }
+    if(+bookingTime.split(':')[0] + duration > +field.booking_close.split(':')[0]) {
+        return {
+            status: 400,
+            message: "Lapangan sudah tutup"
+        }
+    }
     const durationCustomerPlay = parseInt(bookingTime.split(":")[0])
     const unAvailableTime = await getListUnavailableTimeField(fieldId, bookingDate)
     const unavailable = unavailableTimeArray(field, bookingDate, unAvailableTime)

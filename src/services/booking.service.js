@@ -309,7 +309,7 @@ async function getListBooking(request, response) {
         },
         include: [{model: Fields, attributes: ['name']}, {model: User, attributes: ['name']}]
     }
-    if(status_bayar) {
+    if(status_bayar !== 'canceled') {
         condition['where']['status_bayar'] = status_bayar
     }
     const bookings = await Booking.findAll(condition)
@@ -321,7 +321,16 @@ async function getListBooking(request, response) {
                 user_name: value.User.name,
                 field_name: value.Field.name,
                 booking_date: getDateBasedFormat(addHourToDate(value.booking_date, parseInt(value.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
-                duration: value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity
+                duration: value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity,
+                status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : booking.status_bayar
+            }
+        }).filter((value) => {
+            if(status_bayar && value.status_bayar === status_bayar) {
+                return true;
+            } else if(!status_bayar) {
+                return true;
+            } else {
+                return false;
             }
         })
     })

@@ -322,7 +322,7 @@ async function getListBooking(request, response) {
                 field_name: value.Field.name,
                 booking_date: getDateBasedFormat(addHourToDate(value.booking_date, parseInt(value.booking_time.split(":")[0])), 'DD MMM YYYY, HH:mm'),
                 duration: value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity,
-                status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : booking.status_bayar
+                status_bayar: (value.status_bayar === 'waiting') ? (new Date().getTime() > (value.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : value.status_bayar
             }
         }).filter((value) => {
             if(status_bayar && value.status_bayar === status_bayar) {

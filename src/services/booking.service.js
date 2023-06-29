@@ -15,10 +15,12 @@ async function createWebBooking(request, response) {
         if(validation.status) throw new ClientError(JSON.stringify(validation), validation.status)
         const orderCode = uid(6).toUpperCase()
         const payload = await payloadCreateBooking(validation, {userId: user.user_id, platform: "web", orderCode: orderCode})
-        await Booking.create(payload, {returning: true, transaction: t})
+        const booking = await Booking.create(payload, {returning: true, transaction: t})
         response.status(200).json({
             status: 200,
-            message: "Berhasil tambah booking"
+            data: {
+                booking_id: booking.booking_id,
+            }
         })
         t.commit()
     } catch (error) {
@@ -282,7 +284,7 @@ async function getDetailBooking(request, response) {
         verification_code: booking.booking_code,
         platform_booking: booking.platform_booking,
         virtual_account_code: booking.virtual_account_code,
-        status_bayar: booking.status_bayar,
+        status_bayar: (booking.status_bayar === 'waiting') ? (new Date().getTime() > (booking.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : booking.status_bayar,
         user: {
             name: booking.User.name,
             username: booking.User.username,

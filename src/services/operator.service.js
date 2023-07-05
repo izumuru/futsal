@@ -177,7 +177,8 @@ async function getOperator(request, response) {
                     name: value.name,
                     username: value.username,
                     no_hp: value.no_hp,
-                    isaktif: value.isaktif
+                    isaktif: value.isaktif,
+                    updated_at: value.updatedAt
                 }
             })
         })

@@ -39,6 +39,11 @@ const queryOperators = Joi.object({
     type: Joi.string().valid('active', 'not-active').required()
 })
 
+const queryBooking = Joi.object({
+    page: Joi.number().required(),
+    filter: Joi.string().valid('week', 'month', 'year').required()
+});
+
 const paramBooking = Joi.object({
     booking_id: Joi.number().required()
 })
@@ -50,7 +55,7 @@ router.get('/profile', getUserProfile)
 router.put('/', (req, res, next) => {
     multerWithErrorHandling(uploadThumbnail, req, res, next)
 }, validator.body(bodyUpdateUser), updateUser);
-router.get('/bookings', historyBooking)
+router.get('/bookings', validator.query(queryBooking), historyBooking)
 router.get('/bookings/active', bookingActive)
 router.get('/bookings/detail/:booking_id', validator.params(paramBooking), detailBookingUser)
 

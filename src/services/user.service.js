@@ -6,6 +6,7 @@ const {uid} = require("uid");
 const moment = require("moment");
 const logger = require('../helpers/logger')
 const {getDateBasedFormat, addHourToDate} = require("../helpers/date");
+const {Op} = require("sequelize");
 
 async function logout(request, response) {
     const user = response.locals.user
@@ -232,9 +233,23 @@ async function forgotPassword(request, response) {
 
 async function historyBooking(request, response) {
     const user = response.locals.user
-    const {page} = request.query
+    const {page, filter} = request.query
+    let startDate;
+    const endDate = moment().toDate()
+    switch (filter) {
+        case 'week' :
+            startDate = moment().subtract(7, 'days').toDate()
+            break;
+        case 'month' :
+            startDate = moment().subtract(30, 'days').toDate()
+            break;
+        case 'year' :
+            startDate = moment().subtract(365, 'days').toDate();
+            break;
+    }
+    console.log(startDate, endDate);
     const bookings = await Booking.findAndCountAll({
-        where: {user_id: user.user_id},
+        where: {user_id: user.user_id, booking_date: {[Op.between]: [startDate, endDate]}},
         include: {model: Fields, attributes: ['name']},
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity'],
         order: [['createdAt', 'desc']],

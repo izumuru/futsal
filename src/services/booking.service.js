@@ -7,6 +7,7 @@ const axios = require("axios");
 const {response} = require("express");
 const {admin} = require("../helpers/firebase");
 const ClientError = require("../helpers/client_error");
+const { Op } = require("sequelize");
 async function createWebBooking(request, response) {
     const t = await sequelize.transaction()
     try {
@@ -302,15 +303,18 @@ async function getDetailBooking(request, response) {
 }
 
 async function getListBooking(request, response) {
-    const {status_bayar, date} = request.query
+    const {status_bayar, start_date, end_date} = request.query
     const condition = {
         where: {
-            booking_date: date
+            booking_date: {[Op.between]: [start_date, end_date]}
         },
         include: [{model: Fields, attributes: ['name']}, {model: User, attributes: ['name']}]
     }
     if(status_bayar !== 'canceled') {
         condition['where']['status_bayar'] = status_bayar
+    } else if (status_bayar && status_bayar === 'canceled_admin') {
+        condition['where']['status_bayar'] = 'canceled'
+        condition['where']['canceled_by_admin'] = true
     }
     const bookings = await Booking.findAll(condition)
     return response.status(200).json({
@@ -376,6 +380,20 @@ async function midtransCallback(request, response) {
     }
     await booking.update(update)
     return response.status(200).json('success');
+}
+
+async function cancelBooking(request, response) {
+    const {booking_id} = request.params
+    const booking = await Booking.findOne({where: {booking_id}})
+    if(!booking) return response.status(404).json({
+        status: 404,
+        message: "Booking tidak ditemukan"
+    })
+    await booking.update({status_bayar: "canceled", canceled_by_admin: true})
+    return response.status(200).json({
+        status: 200,
+        message: "Booking berhasil dibatalkan"
+    })
 }
 
 async function getListUnavailableTimeField(id, date) {
@@ -468,4 +486,4 @@ function otcPayload(orderId, amount, store, user) {
     }
 }
 
-module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback, getListBooking}
+module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback, getListBooking, cancelBooking}

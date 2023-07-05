@@ -83,14 +83,17 @@ async function rentTime(request, response) {
             }
         }).filter(value => value !== undefined).sort((a, b) => a.total - b.total).reverse()
     })
-    let dataResult;
+    let dataResult = Object.keys(obj).map(key => {
+        return {
+            [key]: obj[key],
+            total_time_rent: 0,
+        }
+    });
+    const keys = dataResult.map(value => Object.keys(value)[0]);
     rentTimeByMonth.forEach(value => {
-        dataResult = Object.keys(obj).map(key => {
-            return {
-                [key]: obj[key],
-                total_time_rent: +value.total
-            }
-        })
+        const month = getDateBasedFormat(value.month_play.getTime(), "MMM YYYY")
+        const findIndex = keys.indexOf(month);
+        dataResult[findIndex].total_time_rent = value.total;
     })
     return response.status(200).json({
         status: 200,

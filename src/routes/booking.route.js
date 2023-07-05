@@ -3,8 +3,9 @@ const {validator} = require('./index')
 const Joi = require("joi");
 const router = express.Router()
 const opadmin = require('../middleware/opadmin.authorization')
+const admin = require('../middleware/admin.authorization');
 const {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking,
-    getListBooking
+    getListBooking, cancelBooking
 } = require('../services/booking.service')
 
 const bodyCreateBooking = Joi.object({
@@ -32,8 +33,9 @@ const querySchema = Joi.object({
     date: Joi.date().required()
 })
 const listBookingSchema = Joi.object({
-    status_bayar: Joi.string().valid('paid', 'canceled', 'waiting'),
-    date: Joi.date().required()
+    status_bayar: Joi.string().valid('paid', 'canceled', 'waiting', 'canceled_admin'),
+    start_date: Joi.date().required(),
+    end_date: Joi.date().required()
 })
 
 router.get('/field/:field_id', validator.params(paramsField), validator.query(querySchema), getAvailableTime)
@@ -44,5 +46,8 @@ router.get('/fields', validator.query(querySchema), getBookingGroupByField)
 router.get('/list', validator.query(listBookingSchema), getListBooking)
 router.get('/:booking_id', validator.params(paramsId), getDetailBooking)
 router.post('/', validator.body(bodyCreateBooking), createWebBooking)
+
+router.use(admin)
+router.put('booking_id', validator.params(paramsId), cancelBooking);
 
 module.exports = router

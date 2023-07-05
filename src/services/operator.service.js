@@ -163,7 +163,8 @@ async function getOperator(request, response) {
                     isaktif: value.isaktif,
                     no_hp: value.no_hp,
                     gender: value.gender,
-                    thumbnail: process.env.APP_URL + "/" + value.thumbnail
+                    thumbnail: process.env.APP_URL + "/" + value.thumbnail,
+                    updated_at: value.updatedAt
                 }
             })
         })

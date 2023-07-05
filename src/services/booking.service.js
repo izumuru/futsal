@@ -310,7 +310,7 @@ async function getListBooking(request, response) {
         },
         include: [{model: Fields, attributes: ['name']}, {model: User, attributes: ['name']}]
     }
-    if(status_bayar !== 'canceled') {
+    if(status_bayar !== 'canceled' && status_bayar !== 'canceled_admin') {
         condition['where']['status_bayar'] = status_bayar
     } else if (status_bayar && status_bayar === 'canceled_admin') {
         condition['where']['status_bayar'] = 'canceled'
@@ -486,4 +486,4 @@ function otcPayload(orderId, amount, store, user) {
     }
 }
 
-module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback, getListBooking, cancelBooking}
+module.exports = {createWebBooking, getAvailableTime, getBookingGroupByField, getDetailBooking, createMobileBooking, midtransCallback,  getListBooking, cancelBooking}

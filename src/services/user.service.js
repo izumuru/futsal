@@ -338,6 +338,7 @@ async function bookingActive(request, response) {
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity'],
         limit: 5
     });
+    console.log(paid);
     if(paid) {
         const data = paid.filter((value) => {
             const currentDate = new Date()

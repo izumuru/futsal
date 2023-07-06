@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     booking_payment_method_name: DataTypes.STRING,
     platform_booking: DataTypes.ENUM('web','mobile'),
     canceled_by_admin: DataTypes.BOOLEAN,
+    status_previous: DataTypes.ENUM('paid', 'waiting', 'canceled'),
   }, {
     sequelize,
     modelName: 'Booking',

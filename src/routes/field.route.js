@@ -19,7 +19,7 @@ const bodyAddField = Joi.object({
     harga: Joi.number().min(1).required(),
     harga_malam: Joi.number().min(1),
     daysActive: Joi.string().required()
-})
+}, { allowUnknown: true })
 const bodyUpdateField = Joi.object({
     name: Joi.string().required(),
     description: Joi.string(),
@@ -29,7 +29,7 @@ const bodyUpdateField = Joi.object({
     harga: Joi.number().min(1).required(),
     harga_malam: Joi.number().min(1),
     daysActive: Joi.array().required()
-})
+}, { allowUnknown: true })
 const paramsValidation = Joi.object({
     id: Joi.number().required(),
 })

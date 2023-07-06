@@ -6,6 +6,11 @@ module.exports = {
     await queryInterface.addColumn('Bookings', 'status_previous', {
       type: Sequelize.ENUM,
       allowNull: true,
+      values: [
+        'paid',
+        'waiting',
+        'canceled'
+    ]
     })
   },
 

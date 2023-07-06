@@ -48,6 +48,6 @@ router.get('/:booking_id', validator.params(paramsId), getDetailBooking)
 router.post('/', validator.body(bodyCreateBooking), createWebBooking)
 
 router.use(admin)
-router.put('booking_id', validator.params(paramsId), cancelBooking);
+router.put('/cancel/:booking_id', validator.params(paramsId), cancelBooking);
 
 module.exports = router

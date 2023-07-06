@@ -262,7 +262,7 @@ async function getDetailBooking(request, response) {
             'booking_time', 'status_bayar', 'platform_booking',
             'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran', 'booking_code',
             'createdAt', 'virtual_account_code',
-            'canceled_by_admin', 'updatedAt'
+            'canceled_by_admin', 'updatedAt', 'status_previous'
         ]
     })
     if (!booking) return response.status(404).json({

@@ -340,14 +340,13 @@ async function bookingActive(request, response) {
     });
     logger.log('info', 'data', paid)
     if(paid) {
-        console.log(moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix())
-        console.log((new Date(value.booking_date).getTime()/1000))
-
-        console.log(moment(new Date().getTime()).tz('Asia/Jakarta').unix())
-        console.log((addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000))
-
         const data = paid.filter((value) => {
             const currentDate = new Date()
+            console.log(moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix())
+            console.log((new Date(value.booking_date).getTime()/1000))
+
+            console.log(moment(new Date().getTime()).tz('Asia/Jakarta').unix())
+            console.log((addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000))
             return (moment(`${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`, 'YYYY-MM-DD').tz('Asia/Jakarta').unix()) < (new Date(value.booking_date).getTime()/1000) && moment(new Date().getTime()).tz('Asia/Jakarta').unix() < (addHourToDate(value.booking_date, parseInt(value.booking_time.split(':')[0])) / 1000);
         })
         const dataSorted = data.map(value => {

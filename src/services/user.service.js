@@ -279,7 +279,7 @@ async function detailBookingUser(request, response) {
             'day_price_quantity', 'night_price_quantity', 'booking_date',
             'booking_time', 'status_bayar', 'platform_booking',
             'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran','booking_code', 'virtual_account_code', 'payment_method_id',
-            'createdAt'
+            'createdAt', 'canceled_by_admin', 'updatedAt'
         ]
     })
     if (!booking) return response.status(404).json({

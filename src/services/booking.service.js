@@ -261,7 +261,8 @@ async function getDetailBooking(request, response) {
             'day_price_quantity', 'night_price_quantity', 'booking_date',
             'booking_time', 'status_bayar', 'platform_booking',
             'booking_payment_method_name', 'admin_price', 'tanggal_pembayaran', 'booking_code',
-            'createdAt', 'virtual_account_code'
+            'createdAt', 'virtual_account_code',
+            'canceled_by_admin', 'updatedAt'
         ]
     })
     if (!booking) return response.status(404).json({
@@ -295,6 +296,8 @@ async function getDetailBooking(request, response) {
             email: booking.User.email,
             thumbnail: booking.User.thumbnail !== null ? `${process.env.APP_URL}/${booking.User.thumbnail}` : null
         },
+        canceled_by_admin: booking.canceled_by_admin,
+        updated_at: booking.updatedAt
     }
     response.status(200).json({
         status: 200,

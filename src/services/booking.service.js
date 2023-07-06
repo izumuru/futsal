@@ -297,7 +297,8 @@ async function getDetailBooking(request, response) {
             thumbnail: booking.User.thumbnail !== null ? `${process.env.APP_URL}/${booking.User.thumbnail}` : null
         },
         canceled_by_admin: booking.canceled_by_admin,
-        updated_at: booking.updatedAt
+        updated_at: booking.updatedAt,
+        status_previous: booking.status_previous
     }
     response.status(200).json({
         status: 200,

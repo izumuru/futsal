@@ -307,6 +307,7 @@ async function detailBookingUser(request, response) {
         created_at: getDateBasedFormat(booking.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
         canceled_by_admin: booking.canceled_by_admin,
         updated_at: getDateBasedFormat(booking.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
+        status_previous: booking.status_previous
     }
     if (booking.Field.Galleries.length > 0) {
         schema['image'] = process.env.APP_URL + '/' + booking.Field.Galleries.shift().image

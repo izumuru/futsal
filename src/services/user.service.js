@@ -251,7 +251,7 @@ async function historyBooking(request, response) {
     const bookings = await Booking.findAndCountAll({
         where: {user_id: user.user_id, booking_date: {[Op.between]: [startDate, endDate]}},
         include: {model: Fields, attributes: ['name']},
-        attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity'],
+        attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity', 'canceled_by_admin', 'updatedAt'],
         order: [['createdAt', 'desc']],
         offset: page ? (page > 1 ? 5 * (page-1) : 0) : 0,
         limit: 5,
@@ -382,7 +382,9 @@ const schemaBooking = (data) => {
         status_bayar: data.status_bayar === 'waiting' ? (new Date().getTime() > (data.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : data.status_bayar,
         tanggal_batas_pembayaran: getDateBasedFormat((data.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         created_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
-        booking_date_time_unix: addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])) / 1000
+        booking_date_time_unix: addHourToDate(data.booking_date, parseInt(data.booking_time.split(":")[0])) / 1000,
+        canceled_by_admin: data.canceled_by_admin,
+        updated_at: getDateBasedFormat(data.createdAt.getTime(), 'DD MMM YYYY, HH:mm', true),
     }
 }
 

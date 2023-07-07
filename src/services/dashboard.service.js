@@ -31,13 +31,13 @@ async function income(request, response) {
 async function rentTime(request, response) {
     const rentTimeByMonth = await sequelize.query("SELECT \n" +
         "\t(sum(day_price_quantity) + sum(night_price_quantity)) as total,\n" +
-        "\tDATE_TRUNC('month', \"updatedAt\") as month_play\n" +
+        "\tDATE_TRUNC('month', booking_date) as month_play\n" +
         "FROM \n" +
         "\tpublic.\"Bookings\"\n" +
         "WHERE\n" +
         "\tstatus_bayar = 'paid'\n" +
         "GROUP BY\n" +
-        "\tDATE_TRUNC('month', \"updatedAt\")\n" +
+        "\tDATE_TRUNC('month', booking_date)\n" +
         "ORDER BY\n" +
         "\tmonth_play\n" +
         "LIMIT 6", {type: QueryTypes.SELECT})
@@ -49,29 +49,28 @@ async function rentTime(request, response) {
         "    booking_time,\n" +
         "\tday_price_quantity,\n" +
         "\tnight_price_quantity,\n" +
-        "\tDATE_TRUNC('month', \"updatedAt\") play_month\n" +
+        "\tDATE_TRUNC('month', booking_date) play_month\n" +
         "FROM \n" +
         "\tpublic.\"Bookings\"\n" +
         "WHERE\n" +
         "\tstatus_bayar = 'paid' AND" +
-        `\tEXTRACT(MONTH from \"updatedAt\") IN (${month})\n` +
+        `\tEXTRACT(MONTH from booking_date) IN (${month})\n` +
         "ORDER BY\n" +
         "\tplay_month DESC", {type: QueryTypes.SELECT})
-    const timeResult = []
-    for(let i = 0; i < 24; i++) timeResult.push(0)
     const obj = {}
     let monthResult = null;
     specificTime.forEach(value => {
         const month = getDateBasedFormat(value.play_month.getTime(), "MMM YYYY")
         if(monthResult === null || monthResult !== month) {
+            console.log(obj);
             monthResult = month
-            obj[monthResult] = timeResult
-            for(let i = 0; i < 24; i++) timeResult[i] = 0
+            obj[monthResult] = []
+            for(let i = 0; i < 24; i++) obj[monthResult][i] = 0
         }
         const time = +value.booking_time.split(':')[0]
-        const duration = value.day_price_quantity ? value.day_price_quantity : value.night_price_quantity
+        const duration = value.day_price_quantity ?? 0 + value.night_price_quantity ?? 0
         for(let i = time; i < time + duration; i++) {
-            timeResult[i-1]++;
+            obj[month][i-1]++;
         }
     })
     Object.keys(obj).map(value => {

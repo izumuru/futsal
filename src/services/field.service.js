@@ -79,21 +79,18 @@ async function updateField(request, response) {
             waktu_mulai_malam: waktuMulaiMalam,
             harga,
             harga_malam: hargaMalam,
-            daysActive: days
+            addDays: days,
+            deleteDays,
         } = request.body
         const field = await Fields.findOne({where: {field_id: id}})
         if (!field) throw new ClientError({
             status: 404,
             message: "Lapangan tidak ditemukan"
         }, 404)
-        const deletedDays = []
+
         const addDays = []
         for(const value of days) {
-            if(value.action === 'delete') {
-                deletedDays.push(value.days_active_id)
-            } else if(value.action === 'add') {
-                addDays.push({field_id: field.field_id, day_id: value.day_id})
-            }
+            addDays.push({field_id: field.field_id, day_id: value.day_id})
         }
         await field.update({
             name,
@@ -105,7 +102,7 @@ async function updateField(request, response) {
             harga_malam: hargaMalam ? hargaMalam : null
         }, {returning: false, transaction: t})
         await DaysActive.bulkCreate(addDays)
-        await DaysActive.destroy({where: {days_active_id: deletedDays}})
+        await DaysActive.destroy({where: {days_active_id: deleteDays}})
         response.status(200).json({
             status: 200,
             message: 'Berhasil update lapangan'
@@ -273,4 +270,18 @@ async function getDays(request, response) {
     })
 }
 
-module.exports = {addField, deleteImage, updateFieldImage, updateField, detailField, getField, getDays, addImage}
+async function deleteField(request, response) {
+    const {id} = request.params
+    const field = await Fields.findOne({where: {field_id: id}})
+    if (!field) return response.status(404).json({
+        status: 404,
+        message: 'Lapangan tidak ditemukan'
+    })
+    await field.destroy({returning: false})
+    return response.status(200).json({
+        status: 200,
+        message: 'Berhasil hapus lapangan'
+    })
+}
+
+module.exports = {addField, deleteImage, updateFieldImage, updateField, detailField, getField, getDays, addImage, deleteField}

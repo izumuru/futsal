@@ -33,8 +33,10 @@ module.exports = (sequelize, DataTypes) => {
     booking_close: DataTypes.TIME,
     waktu_mulai_malam: DataTypes.TIME,
     harga: DataTypes.DOUBLE,
-    harga_malam: DataTypes.DOUBLE
+    harga_malam: DataTypes.DOUBLE,
+    deletedAt: 'destroyTime',
   }, {
+    paranoid: true,
     sequelize,
     modelName: 'Fields',
   });

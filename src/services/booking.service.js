@@ -211,7 +211,7 @@ async function getBookingGroupByField(request, response) {
     const bookings = await Fields.findAll({
         include: {
             model: Booking,
-            where: {booking_date: date},
+            where: {booking_date: date, canceled_by_admin: false},
             attributes: ['booking_id', 'booking_time', 'day_price_quantity', 'night_price_quantity', 'platform_booking'],
             include: {
                 model: User,

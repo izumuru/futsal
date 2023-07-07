@@ -391,7 +391,7 @@ async function cancelBooking(request, response) {
         status: 404,
         message: "Booking tidak ditemukan"
     })
-    const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `${booking.code}/cancel`, {},{
+    const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `${booking.booking_code}/cancel`, {},{
         headers: {
             accept: 'application/json',
             'content-type': 'application/json',

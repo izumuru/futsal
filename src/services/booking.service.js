@@ -254,7 +254,8 @@ async function getDetailBooking(request, response) {
             },
             {
                 model: Fields,
-                attributes: ['name']
+                attributes: ['name'],
+                paranoid: false,
             },
         ],
         attributes: [
@@ -391,7 +392,7 @@ async function cancelBooking(request, response) {
         status: 404,
         message: "Booking tidak ditemukan"
     })
-    const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `${booking.booking_code}/cancel`, {},{
+    const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `orderId-${booking.booking_code}/cancel`, {},{
         headers: {
             accept: 'application/json',
             'content-type': 'application/json',

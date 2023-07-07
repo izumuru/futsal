@@ -250,7 +250,7 @@ async function historyBooking(request, response) {
     console.log(startDate, endDate);
     const bookings = await Booking.findAndCountAll({
         where: {user_id: user.user_id, booking_date: {[Op.between]: [startDate, endDate]}},
-        include: {model: Fields, attributes: ['name']},
+        include: {model: Fields, attributes: ['name'], paranoid: false},
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity', 'canceled_by_admin', 'updatedAt'],
         order: [['createdAt', 'desc']],
         offset: page ? (page > 1 ? 5 * (page-1) : 0) : 0,
@@ -273,7 +273,7 @@ async function detailBookingUser(request, response) {
     const user = response.locals.user
     const booking = await Booking.findOne({
         where: {user_id: user.user_id, booking_id},
-        include: {model: Fields, attributes: ['name'], include:  {model: Gallery}},
+        include: {model: Fields, attributes: ['name'], include:  {model: Gallery}, paranoid: false},
         attributes: [
             'day_price', 'night_price', 'total_price',
             'day_price_quantity', 'night_price_quantity', 'booking_date',

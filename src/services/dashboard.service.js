@@ -8,12 +8,12 @@ async function income(request, response) {
         "\tsum(day_price) as total_day,\n" +
         "\tsum(night_price) as total_night,\n" +
         "\tsum(admin_price) as total_admin,\n" +
-        "\tDATE_TRUNC('month', \"updatedAt\") as income_month\n" +
+        "\tDATE_TRUNC('month', booking_date) as income_month\n" +
         "\tFROM public.\"Bookings\"\n" +
         "WHERE\n" +
         "\tstatus_bayar = 'paid'\n" +
         "GROUP BY\n" +
-        "\tDATE_TRUNC('month', \"updatedAt\")\n" +
+        "\tDATE_TRUNC('month', booking_date)\n" +
         "ORDER BY\n" +
         "\tincome_month DESC\n" +
         "LIMIT 6", {type: QueryTypes.SELECT})

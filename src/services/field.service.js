@@ -3,7 +3,6 @@ const {sequelize} = require('../models/index')
 const path = require("path");
 const fs = require('fs')
 const ClientError = require("../helpers/client_error");
-const {where} = require("sequelize");
 
 async function addField(request, response) {
     const t = await sequelize.transaction();
@@ -83,14 +82,11 @@ async function updateField(request, response) {
             deleteDays,
         } = request.body
         const field = await Fields.findOne({where: {field_id: id}})
-        if (!field) throw new ClientError({
-            status: 404,
-            message: "Lapangan tidak ditemukan"
-        }, 404)
+        if (!field) throw new ClientError("Lapangan tidak ditemukan", 404)
 
         const addDays = []
         for(const value of days) {
-            addDays.push({field_id: field.field_id, day_id: value.day_id})
+            addDays.push({field_id: field.field_id, day_id: value})
         }
         await field.update({
             name,
@@ -110,9 +106,11 @@ async function updateField(request, response) {
         t.commit()
     } catch (e) {
         t.rollback()
-        console.log(e)
         if(e instanceof ClientError) {
-            return response.status(e.statusCode).json(JSON.parse(e.message))
+            return response.status(e.statusCode).json({
+                status: e.statusCode,
+                message: e.message
+            })
         }
         response
             .status(500)

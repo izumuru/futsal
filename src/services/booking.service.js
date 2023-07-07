@@ -392,14 +392,16 @@ async function cancelBooking(request, response) {
         status: 404,
         message: "Booking tidak ditemukan"
     })
-    const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `orderId-${booking.booking_code}/cancel`, {},{
-        headers: {
-            accept: 'application/json',
-            'content-type': 'application/json',
-            Authorization: `Basic ${process.env.MIDTRANS_AUTH}`
-        }
-    })
-    console.log(data);
+    if(booking.status_bayar === 'waiting') {
+        const {data} = await axios.post(process.env.MIDTRANS_PAYMENT_CANCEL + `orderId-${booking.booking_code}/cancel`, {},{
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                Authorization: `Basic ${process.env.MIDTRANS_AUTH}`
+            }
+        })
+        console.log(data);
+    }
     await booking.update({status_bayar: "canceled", status_previous: booking.status_bayar === "waiting" ? "canceled" : booking.status_bayar, canceled_by_admin: true})
     return response.status(200).json({
         status: 200,

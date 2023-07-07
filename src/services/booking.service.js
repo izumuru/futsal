@@ -395,7 +395,7 @@ async function cancelBooking(request, response) {
         status: 404,
         message: "Booking tidak ditemukan"
     })
-    await booking.update({status_bayar: "canceled", status_previous: booking.status_bayar, canceled_by_admin: true})
+    await booking.update({status_bayar: "canceled", status_previous: booking.status_bayar === "waiting" ? "canceled" : booking.status_bayar, canceled_by_admin: true})
     return response.status(200).json({
         status: 200,
         message: "Booking berhasil dibatalkan"

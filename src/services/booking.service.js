@@ -218,7 +218,8 @@ async function getBookingGroupByField(request, response) {
                 attributes: ['name', 'type']
             }
         },
-        attributes: ['field_id', 'name']
+        attributes: ['field_id', 'name'],
+        order: [['field_id', 'ASC']]
     })
     const schema = bookings.map(value => {
         return {
@@ -312,7 +313,8 @@ async function getListBooking(request, response) {
         where: {
             booking_date: {[Op.between]: [start_date, end_date]}
         },
-        include: [{model: Fields, attributes: ['name']}, {model: User, attributes: ['name']}]
+        include: [{model: Fields, attributes: ['name'], paranoid: false}, {model: User, attributes: ['name']}],
+        order: [['booking_date', 'ASC']]
     }
     if(status_bayar !== 'canceled' && status_bayar !== 'canceled_admin') {
         condition['where']['status_bayar'] = status_bayar

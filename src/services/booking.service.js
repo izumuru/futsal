@@ -335,13 +335,9 @@ async function getListBooking(request, response) {
                 status_bayar: (value.status_bayar === 'waiting') ? (new Date().getTime() > (value.createdAt.getTime() + (15 * 60 * 1000)) ? "canceled" : "waiting") : value.status_bayar
             }
         }).filter((value) => {
-            if(status_bayar && value.status_bayar === status_bayar) {
+            if(status_bayar && (value.status_bayar === status_bayar || status_bayar === 'canceled_admin')) {
                 return true;
-            } else if(!status_bayar) {
-                return true;
-            } else {
-                return false;
-            }
+            } else return !status_bayar;
         })
     })
 }

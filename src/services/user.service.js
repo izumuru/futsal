@@ -235,7 +235,7 @@ async function historyBooking(request, response) {
     const user = response.locals.user
     const {page, filter} = request.query
     let startDate;
-    const endDate = moment().toDate()
+    const endDate = moment().tz('Asia/Jakarta').toDate()
     switch (filter) {
         case 'week' :
             startDate = moment().tz('Asia/Jakarta').subtract(7, 'days').toDate()
@@ -249,7 +249,7 @@ async function historyBooking(request, response) {
     }
     console.log(startDate, endDate);
     const bookings = await Booking.findAndCountAll({
-        where: {user_id: user.user_id, booking_date: {[Op.between]: [startDate, endDate]}},
+        where: {user_id: user.user_id, createdAt: {[Op.between]: [startDate, endDate]}},
         include: {model: Fields, attributes: ['name'], paranoid: false},
         attributes: ['booking_id','booking_time', 'booking_date', 'status_bayar', 'createdAt', 'day_price_quantity', 'night_price_quantity', 'canceled_by_admin', 'updatedAt'],
         order: [['createdAt', 'desc']],

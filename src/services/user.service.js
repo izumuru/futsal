@@ -238,13 +238,13 @@ async function historyBooking(request, response) {
     const endDate = moment().toDate()
     switch (filter) {
         case 'week' :
-            startDate = moment().subtract(7, 'days').toDate()
+            startDate = moment().tz('Asia/Jakarta').subtract(7, 'days').toDate()
             break;
         case 'month' :
-            startDate = moment().subtract(30, 'days').toDate()
+            startDate = moment().tz('Asia/Jakarta').subtract(30, 'days').toDate()
             break;
         case 'year' :
-            startDate = moment().subtract(365, 'days').toDate();
+            startDate = moment().tz('Asia/Jakarta').subtract(365, 'days').toDate();
             break;
     }
     console.log(startDate, endDate);

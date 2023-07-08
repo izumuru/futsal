@@ -211,7 +211,7 @@ async function deleteImage(request, response) {
 
 async function detailField(request, response) {
     const {id} = request.params
-    const field = await Fields.findOne({where: {field_id: id}, include: [{model: Gallery}, {model: DaysActive, include: Days}]})
+    const field = await Fields.findOne({where: {field_id: id}, include: [{model: Gallery}, {model: DaysActive, include: Days, order: [['day_id', 'ASC']]}]})
     console.log()
     if (!field) return response.status(404).json({
         status: 404,

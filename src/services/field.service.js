@@ -211,7 +211,7 @@ async function deleteImage(request, response) {
 
 async function detailField(request, response) {
     const {id} = request.params
-    const field = await Fields.findOne({where: {field_id: id}, include: [{model: Gallery}, {model: DaysActive, include: Days, order: [['day_id', 'ASC']]}]})
+    const field = await Fields.findOne({where: {field_id: id}, include: [{model: Gallery}, {model: DaysActive, include: Days}]})
     console.log()
     if (!field) return response.status(404).json({
         status: 404,
@@ -226,7 +226,7 @@ async function detailField(request, response) {
             booking_close: field.booking_close,
             waktu_mulai_malam: field.waktu_mulai_malam,
             harga: field.harga,
-            days_active: field.DaysActives.map(value => ({days_active_id: value.days_active_id, day_name: value.Day.day_name})),
+            days_active: field.DaysActives.map(value => ({days_active_id: value.days_active_id, day_id:  value.day_id, day_name: value.Day.day_name})).sort((a, b) => a.day_id - b.day_id),
             harga_malam: field.harga_malam,
             galleries: field.Galleries.map(value => {
                 return {

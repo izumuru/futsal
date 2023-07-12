@@ -5,7 +5,7 @@ async function getPaymentMethod(request, response) {
     return response.status(200).json({
         status: 200,
         data: paymentMethods.map(value => {
-            if (value.platform_payment_method === 'web') return;
+            if (value.platform_payment_method === 'web' || value.payment_method_id === 5) return;
             return {
                 payment_method_id: value.payment_method_id,
                 payment_method_name: value.payment_method_name,

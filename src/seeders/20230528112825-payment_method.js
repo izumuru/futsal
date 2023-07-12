@@ -9,7 +9,7 @@ module.exports = {
                 payment_types_id: 1,
                 logo: 'bca.png',
                 payment_method_name: "BCA",
-                payment_admin_nominal: 4000,
+                payment_admin_nominal: 4440,
                 platform_payment_method: "mobile",
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -19,7 +19,7 @@ module.exports = {
                 payment_types_id: 1,
                 logo: 'bri.png',
                 payment_method_name: "BRI",
-                payment_admin_nominal: 4000,
+                payment_admin_nominal: 4440,
                 platform_payment_method: "mobile",
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -29,7 +29,7 @@ module.exports = {
                 payment_types_id: 1,
                 logo: 'bni.png',
                 payment_method_name: "BNI",
-                payment_admin_nominal: 4000,
+                payment_admin_nominal: 4440,
                 platform_payment_method: "mobile",
                 createdAt: new Date(),
                 updatedAt: new Date()

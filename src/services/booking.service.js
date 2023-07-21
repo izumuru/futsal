@@ -283,7 +283,7 @@ async function getDetailBooking(request, response) {
         field_name: booking.Field.name,
         payment_method: booking.payment_method_name,
         booking_payment_method_name: booking.booking_payment_method_name,
-        tanggal_pembayaran: booking.tanggal_pembayaran !== null ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm') : null,
+        tanggal_pembayaran: booking.tanggal_pembayaran !== null ? getDateBasedFormat(booking.tanggal_pembayaran.getTime(), 'DD MMM YYYY, HH:mm', true) : null,
         tanggal_batas_pembayaran: getDateBasedFormat((booking.createdAt.getTime() + (15 * 60 * 1000)), 'DD MMM YYYY, HH:mm', true),
         verification_code: booking.booking_code,
         platform_booking: booking.platform_booking,

@@ -135,7 +135,7 @@ async function updateUser(request, response) {
         logger.log("info", "Request File : ", request.file)
         const user = await User.findByPk(response.locals.user.user_id)
         const file = request.file
-        const {name, no_hp, address} = request.body
+        const {name, no_hp, address, gender} = request.body
         if (!user) return response.status(400).json({
             status: 400,
             message: "User tidak ditemukan"
@@ -143,6 +143,7 @@ async function updateUser(request, response) {
         user.name = name
         user.no_hp = no_hp
         user.alamat = address
+        user.gender = gender
         if (file) {
             user.thumbnail = file.filename
         }
